@@ -151,8 +151,8 @@ const RondasManagement: React.FC<RondasManagementProps> = ({ viewMode = 'form', 
             setToast({ message: 'La parada intermedia no puede ser el destino final', type: 'error' });
             return;
         }
-        if (formData.paradasIntermediasIds.length >= 2) {
-            setToast({ message: 'Máximo 2 paradas intermedias permitidas', type: 'error' });
+        if (formData.paradasIntermediasIds.length >= 3) {
+            setToast({ message: 'Máximo 3 paradas intermedias permitidas', type: 'error' });
             return;
         }
         setFormData({ ...formData, paradasIntermediasIds: [...formData.paradasIntermediasIds, postaId] });
@@ -674,11 +674,11 @@ const RondasManagement: React.FC<RondasManagementProps> = ({ viewMode = 'form', 
                             </div>
                         </div>
                         <div className="form-group">
-                            <label>Paradas Intermedias (Máx 2)</label>
+                            <label>Paradas Intermedias (Máx 3)</label>
                             <select
                                 onChange={e => handleAddStop(e.target.value)}
                                 value=""
-                                disabled={formData.paradasIntermediasIds.length >= 2}
+                                disabled={formData.paradasIntermediasIds.length >= 3}
                             >
                                 <option value="">Seleccionar parada...</option>
                                 {postosList.filter(p => p.id !== formData.postaId && !formData.paradasIntermediasIds.includes(p.id)).map(p => (
