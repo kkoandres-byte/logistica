@@ -79,12 +79,14 @@ const App: React.FC = () => {
               <span>📄</span> Salidas Programadas
             </div>
 
-            <div
-              className={`nav-item ${activeTab === 'solicitudes' ? 'active' : ''}`}
-              onClick={() => setActiveTab('solicitudes')}
-            >
-              <span>📋</span> Solicitudes de Salida
-            </div>
+            {usuario?.rol !== 'admin' && (
+              <div
+                className={`nav-item ${activeTab === 'solicitudes' ? 'active' : ''}`}
+                onClick={() => setActiveTab('solicitudes')}
+              >
+                <span>📋</span> Solicitudes de Salida
+              </div>
+            )}
 
             {/* ── Solo Administrador ── */}
             {usuario?.rol === 'admin' && (
@@ -92,6 +94,18 @@ const App: React.FC = () => {
                 <div style={{ height: '1px', background: '#e2e8f0', margin: '0.5rem 0' }} />
                 <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8', padding: '0.25rem 1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Administración
+                </div>
+
+                {/* Gestión module */}
+                <div style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 700, padding: '0.5rem 1rem', marginTop: '0.75rem', textTransform: 'uppercase' }}>
+                    📦 Gestión
+                </div>
+
+                <div
+                  className={`nav-item ${activeTab === 'solicitudes' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('solicitudes')}
+                >
+                  <span>📋</span> Gestionar Solicitudes
                 </div>
 
                 <div
@@ -108,7 +122,7 @@ const App: React.FC = () => {
                   style={{ justifyContent: 'space-between', cursor: 'pointer' }}
                 >
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span>📦</span> Activos
+                    <span>📁</span> Activos
                   </span>
                   <span style={{ fontSize: '0.7rem', transition: 'transform 0.2s', display: 'inline-block', transform: activosOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
                 </div>
@@ -157,7 +171,7 @@ const App: React.FC = () => {
               {activeTab === 'postas' && 'Administración de Destinos'}
               {activeTab === 'vehiculos' && 'Control de Flota'}
               {activeTab === 'personal' && 'Personal'}
-              {activeTab === 'solicitudes' && 'Solicitudes de Salida'}
+              {activeTab === 'solicitudes' && (usuario?.rol === 'admin' ? 'Gestión de Solicitudes' : 'Solicitudes de Salida')}
             </h1>
             <UserMenu />
           </header>
