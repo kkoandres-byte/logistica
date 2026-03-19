@@ -10,6 +10,7 @@ import VehiculosManagement from './components/VehiculosManagement';
 import PersonalManagement from './components/PersonalManagement';
 import AuthGuard from './components/AuthGuard';
 import SolicitudesManagement from './components/SolicitudesManagement';
+import SolicitudesReport from './components/SolicitudesReport';
 import type { Ronda, SolicitudSalida } from './data/types';
 
 type AuthView = 'login' | 'register' | 'authenticated';
@@ -17,7 +18,7 @@ type AuthView = 'login' | 'register' | 'authenticated';
 const App: React.FC = () => {
   const { isAuthenticated, isLoading, usuario } = useAuth();
   const [authView, setAuthView] = useState<AuthView>('login');
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'rondas' | 'salidas-programadas' | 'postas' | 'vehiculos' | 'personal' | 'solicitudes'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'reporte-solicitudes' | 'rondas' | 'salidas-programadas' | 'postas' | 'vehiculos' | 'personal' | 'solicitudes'>('dashboard');
   const [activosOpen, setActivosOpen] = useState(false);
   const [gestionOpen, setGestionOpen] = useState(true);
   const [prefillRonda, setPrefillRonda] = useState<Partial<Ronda> | null>(null);
@@ -63,6 +64,7 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard': return <Dashboard />;
+      case 'reporte-solicitudes': return <SolicitudesReport />;
       case 'salidas-programadas': return <RondasManagement viewMode="table" onSwitchTab={usuario?.rol === 'admin' ? () => setActiveTab('rondas') : undefined} />;
       case 'rondas': return usuario?.rol === 'admin' ? <RondasManagement viewMode="form" prefillData={prefillRonda || undefined} onClearPrefill={() => setPrefillRonda(null)} /> : <Dashboard />;
       case 'postas': return usuario?.rol === 'admin' ? <PostasManagement /> : <Dashboard />;
@@ -90,6 +92,13 @@ const App: React.FC = () => {
               onClick={() => setActiveTab('dashboard')}
             >
               <span>📊</span> Dashboard
+            </div>
+
+            <div
+              className={`nav-item ${activeTab === 'reporte-solicitudes' ? 'active' : ''}`}
+              onClick={() => setActiveTab('reporte-solicitudes')}
+            >
+              <span>📈</span> Reporte de Solicitudes
             </div>
 
             <div
