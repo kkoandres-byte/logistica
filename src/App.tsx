@@ -17,6 +17,7 @@ const App: React.FC = () => {
   const { isAuthenticated, isLoading, usuario } = useAuth();
   const [authView, setAuthView] = useState<AuthView>('login');
   const [activeTab, setActiveTab] = useState<'dashboard' | 'rondas' | 'salidas-programadas' | 'postas' | 'vehiculos' | 'personal' | 'solicitudes'>('dashboard');
+  const [activosOpen, setActivosOpen] = useState(false);
 
   // Mostrar loading mientras se verifica la autenticación
   if (isLoading) {
@@ -99,24 +100,44 @@ const App: React.FC = () => {
                 >
                   <span>🗓️</span> Programar Nueva Salida
                 </div>
+
+                {/* Activos accordion */}
                 <div
-                  className={`nav-item ${activeTab === 'postas' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('postas')}
+                  className="nav-item"
+                  onClick={() => setActivosOpen(o => !o)}
+                  style={{ justifyContent: 'space-between', cursor: 'pointer' }}
                 >
-                  <span>🏠</span> Destinos
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span>📦</span> Activos
+                  </span>
+                  <span style={{ fontSize: '0.7rem', transition: 'transform 0.2s', display: 'inline-block', transform: activosOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
                 </div>
-                <div
-                  className={`nav-item ${activeTab === 'vehiculos' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('vehiculos')}
-                >
-                  <span>🛡️</span> Vehículos
-                </div>
-                <div
-                  className={`nav-item ${activeTab === 'personal' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('personal')}
-                >
-                  <span>👥</span> Personal Médico
-                </div>
+
+                {activosOpen && (
+                  <div style={{ paddingLeft: '1rem', borderLeft: '2px solid #e2e8f0', marginLeft: '1rem' }}>
+                    <div
+                      className={`nav-item ${activeTab === 'postas' ? 'active' : ''}`}
+                      onClick={() => setActiveTab('postas')}
+                      style={{ fontSize: '0.85rem' }}
+                    >
+                      <span>🏠</span> Destinos
+                    </div>
+                    <div
+                      className={`nav-item ${activeTab === 'vehiculos' ? 'active' : ''}`}
+                      onClick={() => setActiveTab('vehiculos')}
+                      style={{ fontSize: '0.85rem' }}
+                    >
+                      <span>🛡️</span> Vehículos
+                    </div>
+                    <div
+                      className={`nav-item ${activeTab === 'personal' ? 'active' : ''}`}
+                      onClick={() => setActiveTab('personal')}
+                      style={{ fontSize: '0.85rem' }}
+                    >
+                      <span>👥</span> Personal
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </nav>
@@ -135,7 +156,7 @@ const App: React.FC = () => {
               {activeTab === 'salidas-programadas' && 'Salidas Programadas'}
               {activeTab === 'postas' && 'Administración de Destinos'}
               {activeTab === 'vehiculos' && 'Control de Flota'}
-              {activeTab === 'personal' && 'Gestión de Personal'}
+              {activeTab === 'personal' && 'Personal'}
               {activeTab === 'solicitudes' && 'Solicitudes de Salida'}
             </h1>
             <UserMenu />
