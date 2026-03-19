@@ -257,7 +257,7 @@ const SolicitudesManagement: React.FC = () => {
                                 <th>Tipo</th>
                                 <th>Descripción</th>
                                 <th>Estado</th>
-                                <th>Ronda</th>
+                                {isAdmin && <th>Ronda</th>}
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -332,24 +332,28 @@ const SolicitudesManagement: React.FC = () => {
                                                 </span>
                                             )}
                                         </td>
-                                        <td style={{ fontSize: '0.78rem', color: s.rondaId ? '#065f46' : '#94a3b8' }}>
-                                            {s.rondaId ? `✅ Asignada` : '–'}
-                                        </td>
+                                        {isAdmin && (
+                                            <td style={{ fontSize: '0.78rem', color: s.rondaId ? '#065f46' : '#94a3b8' }}>
+                                                {s.rondaId ? `✅ Asignada` : '–'}
+                                            </td>
+                                        )}
                                         <td>
-                                            {isAdmin && (
-                                                <div style={{ display: 'flex', gap: '6px' }}>
+                                            <div style={{ display: 'flex', gap: '6px' }}>
+                                                {(isAdmin || s.solicitante === usuario?.nombre || s.solicitante === usuario?.email) && (
                                                     <button
                                                         className="btn"
                                                         style={{ padding: '5px 10px', fontSize: '0.78rem', background: '#e0f2fe', color: '#0369a1' }}
                                                         onClick={() => openEdit(s)}
                                                     >✏️ Editar</button>
+                                                )}
+                                                {isAdmin && (
                                                     <button
                                                         className="btn"
                                                         style={{ padding: '5px 10px', fontSize: '0.78rem', background: '#fee2e2', color: '#991b1b' }}
                                                         onClick={() => handleDelete(s.id)}
                                                     >🗑️</button>
-                                                </div>
-                                            )}
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 );
