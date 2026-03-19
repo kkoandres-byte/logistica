@@ -62,21 +62,14 @@ const App: React.FC = () => {
           </div>
 
           <nav className="nav-links" style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+
+            {/* ── Todos los usuarios ── */}
             <div
               className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
               onClick={() => setActiveTab('dashboard')}
             >
               <span>📊</span> Dashboard
             </div>
-            
-            {usuario?.rol === 'admin' && (
-              <div
-                className={`nav-item ${activeTab === 'rondas' ? 'active' : ''}`}
-                onClick={() => setActiveTab('rondas')}
-              >
-                <span>🗓️</span> Programar Nueva Salida
-              </div>
-            )}
 
             <div
               className={`nav-item ${activeTab === 'salidas-programadas' ? 'active' : ''}`}
@@ -85,8 +78,27 @@ const App: React.FC = () => {
               <span>📄</span> Salidas Programadas
             </div>
 
+            <div
+              className={`nav-item ${activeTab === 'solicitudes' ? 'active' : ''}`}
+              onClick={() => setActiveTab('solicitudes')}
+            >
+              <span>📋</span> Solicitudes de Salida
+            </div>
+
+            {/* ── Solo Administrador ── */}
             {usuario?.rol === 'admin' && (
               <>
+                <div style={{ height: '1px', background: '#e2e8f0', margin: '0.5rem 0' }} />
+                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8', padding: '0.25rem 1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Administración
+                </div>
+
+                <div
+                  className={`nav-item ${activeTab === 'rondas' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('rondas')}
+                >
+                  <span>🗓️</span> Programar Nueva Salida
+                </div>
                 <div
                   className={`nav-item ${activeTab === 'postas' ? 'active' : ''}`}
                   onClick={() => setActiveTab('postas')}
@@ -107,13 +119,6 @@ const App: React.FC = () => {
                 </div>
               </>
             )}
-
-            <div
-              className={`nav-item ${activeTab === 'solicitudes' ? 'active' : ''}`}
-              onClick={() => setActiveTab('solicitudes')}
-            >
-              <span>📋</span> Solicitudes de Salida
-            </div>
           </nav>
 
           <div style={{ padding: '1rem', background: '#f8f9fa', borderRadius: '12px', flexShrink: 0 }}>
