@@ -525,7 +525,7 @@ const RondasManagement: React.FC<RondasManagementProps> = ({
                                             <th>Fecha</th>
                                             <th>Ruta (Postas)</th>
                                             <th>Vehículo</th>
-                                            <th>Pax</th>
+                                            <th>Funcionarios</th>
                                             <th className="col-actions"></th>
                                         </tr>
                                     </thead>
@@ -551,7 +551,22 @@ const RondasManagement: React.FC<RondasManagementProps> = ({
                                                         <span style={{ fontSize: '0.85rem', fontWeight: '500' }}>{v?.patente}</span>
                                                         <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginLeft: '8px' }}>{conductor?.nombre}</span>
                                                     </td>
-                                                    <td><span className="badge badge-success">{r.pasajerosIds.length}</span></td>
+                                                    <td>
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '150px' }}>
+                                                            {r.pasajerosIds.length > 0 ? (
+                                                                r.pasajerosIds.map(pid => {
+                                                                    const p = personalList.find(px => px.id === pid);
+                                                                    return (
+                                                                        <span key={pid} style={{ fontSize: '0.72rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                                            <span style={{ fontSize: '0.6rem' }}>👤</span> {p?.nombre || '–'}
+                                                                        </span>
+                                                                    );
+                                                                })
+                                                            ) : (
+                                                                <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Sin pasajeros</span>
+                                                            )}
+                                                        </div>
+                                                    </td>
                                                     <td style={{ textAlign: 'right' }}>
                                                         <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
                                                             {isAdmin && <button className="btn no-print" style={{ width: '30px', height: '30px', padding: 0, background: '#e0f2fe', color: '#0369a1' }} onClick={() => handleEditRonda(r)} title="Editar">✏️</button>}
