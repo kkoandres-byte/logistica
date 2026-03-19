@@ -18,6 +18,7 @@ const App: React.FC = () => {
   const [authView, setAuthView] = useState<AuthView>('login');
   const [activeTab, setActiveTab] = useState<'dashboard' | 'rondas' | 'salidas-programadas' | 'postas' | 'vehiculos' | 'personal' | 'solicitudes'>('dashboard');
   const [activosOpen, setActivosOpen] = useState(false);
+  const [gestionOpen, setGestionOpen] = useState(true);
 
   // Mostrar loading mientras se verifica la autenticación
   if (isLoading) {
@@ -97,23 +98,36 @@ const App: React.FC = () => {
                 </div>
 
                 {/* Gestión module */}
-                <div style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 700, padding: '0.5rem 1rem', marginTop: '0.75rem', textTransform: 'uppercase' }}>
-                    📦 Gestión
+                <div
+                  className="nav-item"
+                  onClick={() => setGestionOpen(o => !o)}
+                  style={{ justifyContent: 'space-between', cursor: 'pointer', marginTop: '0.75rem' }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span>📦</span> Gestión
+                  </span>
+                  <span style={{ fontSize: '0.7rem', transition: 'transform 0.2s', display: 'inline-block', transform: gestionOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
                 </div>
 
-                <div
-                  className={`nav-item ${activeTab === 'solicitudes' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('solicitudes')}
-                >
-                  <span>📋</span> Gestionar Solicitudes
-                </div>
+                {gestionOpen && (
+                  <div style={{ paddingLeft: '1rem', borderLeft: '2px solid #e2e8f0', marginLeft: '1rem' }}>
+                    <div
+                      className={`nav-item ${activeTab === 'solicitudes' ? 'active' : ''}`}
+                      onClick={() => setActiveTab('solicitudes')}
+                      style={{ fontSize: '0.85rem' }}
+                    >
+                      <span>📋</span> Gestionar Solicitudes
+                    </div>
 
-                <div
-                  className={`nav-item ${activeTab === 'rondas' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('rondas')}
-                >
-                  <span>🗓️</span> Programar Nueva Salida
-                </div>
+                    <div
+                      className={`nav-item ${activeTab === 'rondas' ? 'active' : ''}`}
+                      onClick={() => setActiveTab('rondas')}
+                      style={{ fontSize: '0.85rem' }}
+                    >
+                      <span>🗓️</span> Programar Nueva Salida
+                    </div>
+                  </div>
+                )}
 
                 {/* Activos accordion */}
                 <div
