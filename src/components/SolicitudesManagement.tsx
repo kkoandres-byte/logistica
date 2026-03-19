@@ -49,6 +49,7 @@ const SolicitudesManagement: React.FC = () => {
     const [form, setForm] = useState(EMPTY_FORM);
     const [filterEstado, setFilterEstado] = useState<EstadoSolicitud | 'Todas'>('Todas');
     const [filterTipo, setFilterTipo] = useState<TipoSolicitud | 'Todos'>('Todos');
+    const [searchTerm, setSearchTerm] = useState('');
     const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
 
     const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
@@ -383,24 +384,64 @@ const SolicitudesManagement: React.FC = () => {
                                         </label>
                                         
                                         {form.funcionariosIds.length < 4 && (
-                                            <select
-                                                value=""
-                                                onChange={e => {
-                                                    const id = e.target.value;
-                                                    if (id && !form.funcionariosIds.includes(id)) {
-                                                        setForm({ ...form, funcionariosIds: [...form.funcionariosIds, id] });
-                                                    }
-                                                }}
-                                                style={{ marginBottom: '0.75rem', fontSize: '0.875rem' }}
-                                            >
-                                                <option value="">+ Agregar personal...</option>
-                                                {allPersonal
-                                                    .filter(p => !form.funcionariosIds.includes(p.id))
-                                                    .map(p => (
-                                                        <option key={p.id} value={p.id}>{p.nombre} ({p.especialidad})</option>
-                                                    ))
-                                                }
-                                            </select>
+                                            <div style={{ position: 'relative', marginBottom: '0.75rem' }}>
+                                                <input
+                                                    type="text"
+                                                    value={searchTerm}
+                                                    onChange={e => setSearchTerm(e.target.value)}
+                                                    placeholder="🔍 Buscar funcionario por nombre o especialidad..."
+                                                    style={{ 
+                                                        width: '100%', padding: '0.625rem 0.75rem', 
+                                                        fontSize: '0.875rem', border: '1px solid #e2e8f0', 
+                                                        borderRadius: '8px', background: 'white' 
+                                                    }}
+                                                />
+                                                {searchTerm.trim() !== '' && (
+                                                    <div style={{
+                                                        position: 'absolute', top: '100%', left: 0, right: 0, 
+                                                        background: 'white', border: '1px solid #e2e8f0', 
+                                                        borderRadius: '8px', marginTop: '4px', zIndex: 10,
+                                                        maxHeight: '200px', overflowY: 'auto', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
+                                                    }}>
+                                                        {allPersonal
+                                                            .filter(p => !form.funcionariosIds.includes(p.id))
+                                                            .filter(p => 
+                                                                p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                                                p.especialidad.toLowerCase().includes(searchTerm.toLowerCase())
+                                                            )
+                                                            .map(p => (
+                                                                <div 
+                                                                    key={p.id} 
+                                                                    onClick={() => {
+                                                                        setForm({ ...form, funcionariosIds: [...form.funcionariosIds, p.id] });
+                                                                        setSearchTerm('');
+                                                                    }}
+                                                                    style={{
+                                                                        padding: '0.625rem 1rem', cursor: 'pointer',
+                                                                        display: 'flex', flexDirection: 'column',
+                                                                        borderBottom: '1px solid #f1f5f9'
+                                                                    }}
+                                                                    className="search-item-hover"
+                                                                >
+                                                                    <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{p.nombre}</span>
+                                                                    <span style={{ fontSize: '0.75rem', color: '#64748b' }}>{p.especialidad}</span>
+                                                                </div>
+                                                            ))
+                                                        }
+                                                        {allPersonal
+                                                            .filter(p => !form.funcionariosIds.includes(p.id))
+                                                            .filter(p => 
+                                                                p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                                                p.especialidad.toLowerCase().includes(searchTerm.toLowerCase())
+                                                            ).length === 0 && (
+                                                                <div style={{ padding: '0.75rem', textAlign: 'center', fontSize: '0.85rem', color: '#94a3b8' }}>
+                                                                    No se encontraron resultados
+                                                                </div>
+                                                            )
+                                                        }
+                                                    </div>
+                                                )}
+                                            </div>
                                         )}
 
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
