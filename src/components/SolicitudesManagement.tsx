@@ -153,16 +153,9 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
     };
 
     const filtered = solicitudes.filter(s => {
-        // ¿Es mi propia solicitud?
-        const isMyOwn = s.solicitante === usuario?.nombre || s.solicitante === usuario?.email;
-
-        // Si soy admin, aplicar filtro de "Bandeja de Entrada" (solo lo pendiente de gestión)
-        // EXCEPTO si es mi propia solicitud, la cual quiero ver siempre en esta lista.
-        const isAdmin = usuario?.rol === 'admin';
-        if (isAdmin && !isMyOwn) {
-             const isActionable = s.estado === 'Pendiente' || (s.estado === 'Aprobada' && !s.rondaId);
-             if (!isActionable) return false;
-        }
+        // El usuario solicitó que en estos menús SOLO aparezcan las pendientes.
+        // Todo lo aprobado o rechazado (esté o no asignado) debe irse a Reportes.
+        if (s.estado !== 'Pendiente') return false;
 
         return (filterEstado === 'Todas' || s.estado === filterEstado) &&
                (filterTipo   === 'Todos' || s.tipoSalida === filterTipo);
