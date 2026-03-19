@@ -253,6 +253,7 @@ const SolicitudesManagement: React.FC = () => {
                                 <th>F. Solicitud</th>
                                 <th>F. Viaje</th>
                                 <th>Solicitante</th>
+                                <th>Acompañantes</th>
                                 <th>Tipo</th>
                                 <th>Descripción</th>
                                 <th>Estado</th>
@@ -272,12 +273,24 @@ const SolicitudesManagement: React.FC = () => {
                                         <td style={{ whiteSpace: 'nowrap', fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>
                                             {s.fechaViaje ? s.fechaViaje.split('-').reverse().join('/') : '–'}
                                         </td>
-                                        <td style={{ fontWeight: 500 }}>
+                                        <td style={{ fontWeight: 500, whiteSpace: 'nowrap' }}>
                                             {s.solicitante}
-                                            {s.funcionariosIds && s.funcionariosIds.length > 0 && (
-                                                <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 400, marginTop: '2px' }}>
-                                                    + {s.funcionariosIds.length} acompañante{s.funcionariosIds.length > 1 ? 's' : ''}
-                                                </div>
+                                        </td>
+                                        <td>
+                                            {s.funcionariosIds && s.funcionariosIds.length > 0 ? (
+                                                <span style={{ 
+                                                    fontSize: '0.7rem', 
+                                                    background: '#f1f5f9', 
+                                                    padding: '2px 8px', 
+                                                    borderRadius: '6px',
+                                                    color: '#475569',
+                                                    fontWeight: 600,
+                                                    whiteSpace: 'nowrap'
+                                                }}>
+                                                    👤 {s.funcionariosIds.length} funcionario{s.funcionariosIds.length > 1 ? 's' : ''}
+                                                </span>
+                                            ) : (
+                                                <span style={{ color: '#cbd5e1', fontSize: '0.75rem' }}>Solo</span>
                                             )}
                                         </td>
                                         <td>
