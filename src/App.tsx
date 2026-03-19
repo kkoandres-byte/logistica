@@ -47,7 +47,7 @@ const App: React.FC = () => {
       case 'postas': return usuario?.rol === 'admin' ? <PostasManagement /> : <Dashboard />;
       case 'vehiculos': return usuario?.rol === 'admin' ? <VehiculosManagement /> : <Dashboard />;
       case 'personal': return usuario?.rol === 'admin' ? <PersonalManagement /> : <Dashboard />;
-      case 'solicitudes': return usuario?.rol === 'admin' ? <SolicitudesManagement /> : <Dashboard />;
+      case 'solicitudes': return <SolicitudesManagement />;
       default: return <Dashboard />;
     }
   };
@@ -105,14 +105,15 @@ const App: React.FC = () => {
                 >
                   <span>👥</span> Personal Médico
                 </div>
-                <div
-                  className={`nav-item ${activeTab === 'solicitudes' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('solicitudes')}
-                >
-                  <span>📋</span> Solicitudes de Salida
-                </div>
               </>
             )}
+
+            <div
+              className={`nav-item ${activeTab === 'solicitudes' ? 'active' : ''}`}
+              onClick={() => setActiveTab('solicitudes')}
+            >
+              <span>📋</span> Solicitudes de Salida
+            </div>
           </nav>
 
           <div style={{ padding: '1rem', background: '#f8f9fa', borderRadius: '12px', flexShrink: 0 }}>

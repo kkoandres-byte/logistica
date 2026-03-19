@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import type { SolicitudSalida, TipoSolicitud, EstadoSolicitud } from '../data/types';
 import {
     getSolicitudesFirebase,
@@ -36,6 +37,8 @@ const EMPTY_FORM = {
 };
 
 const SolicitudesManagement: React.FC = () => {
+    const { usuario } = useAuth();
+    const isAdmin = usuario?.rol === 'admin';
     const [solicitudes, setSolicitudes] = useState<SolicitudSalida[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
@@ -176,25 +179,29 @@ const SolicitudesManagement: React.FC = () => {
                         ＋ Nueva Solicitud
                     </button>
 
-                    <select
-                        value={filterEstado}
-                        onChange={e => setFilterEstado(e.target.value as EstadoSolicitud | 'Todas')}
-                        style={{ flex: '0 0 auto', width: 'auto', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem' }}
-                    >
-                        <option value="Todas">Todos los estados</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Aprobada">Aprobada</option>
-                        <option value="Rechazada">Rechazada</option>
-                    </select>
+                    {isAdmin && (
+                        <>
+                            <select
+                                value={filterEstado}
+                                onChange={e => setFilterEstado(e.target.value as EstadoSolicitud | 'Todas')}
+                                style={{ flex: '0 0 auto', width: 'auto', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem' }}
+                            >
+                                <option value="Todas">Todos los estados</option>
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Aprobada">Aprobada</option>
+                                <option value="Rechazada">Rechazada</option>
+                            </select>
 
-                    <select
-                        value={filterTipo}
-                        onChange={e => setFilterTipo(e.target.value as TipoSolicitud | 'Todos')}
-                        style={{ flex: '0 0 auto', width: 'auto', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem' }}
-                    >
-                        <option value="Todos">Todos los tipos</option>
-                        {TIPOS.map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
+                            <select
+                                value={filterTipo}
+                                onChange={e => setFilterTipo(e.target.value as TipoSolicitud | 'Todos')}
+                                style={{ flex: '0 0 auto', width: 'auto', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem' }}
+                            >
+                                <option value="Todos">Todos los tipos</option>
+                                {TIPOS.map(t => <option key={t} value={t}>{t}</option>)}
+                            </select>
+                        </>
+                    )}
 
                     <div style={{ marginLeft: 'auto', fontSize: '0.85rem', color: '#64748b' }}>
                         {filtered.length} solicitud{filtered.length !== 1 ? 'es' : ''}
@@ -261,37 +268,49 @@ const SolicitudesManagement: React.FC = () => {
                                             {s.descripcion}
                                         </td>
                                         <td>
-                                            <select
-                                                value={s.estado}
-                                                onChange={e => handleChangeEstado(s, e.target.value as EstadoSolicitud)}
-                                                style={{
-                                                    padding: '4px 8px', fontSize: '0.78rem', borderRadius: '8px',
-                                                    border: `1.5px solid ${estadoCfg.color}66`,
-                                                    background: estadoCfg.bg, color: estadoCfg.color,
-                                                    fontWeight: 700, cursor: 'pointer'
-                                                }}
-                                            >
-                                                <option value="Pendiente">Pendiente</option>
-                                                <option value="Aprobada">Aprobada</option>
-                                                <option value="Rechazada">Rechazada</option>
-                                            </select>
+                                            {isAdmin ? (
+                                                <select
+                                                    value={s.estado}
+                                                    onChange={e => handleChangeEstado(s, e.target.value as EstadoSolicitud)}
+                                                    style={{
+                                                        padding: '4px 8px', fontSize: '0.78rem', borderRadius: '8px',
+                                                        border: `1.5px solid ${estadoCfg.color}66`,
+                                                        background: estadoCfg.bg, color: estadoCfg.color,
+                                                        fontWeight: 700, cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    <option value="Pendiente">Pendiente</option>
+                                                    <option value="Aprobada">Aprobada</option>
+                                                    <option value="Rechazada">Rechazada</option>
+                                                </select>
+                                            ) : (
+                                                <span style={{
+                                                    display: 'inline-block', padding: '4px 10px',
+                                                    borderRadius: '8px', fontSize: '0.78rem', fontWeight: 700,
+                                                    background: estadoCfg.bg, color: estadoCfg.color
+                                                }}>
+                                                    {s.estado}
+                                                </span>
+                                            )}
                                         </td>
                                         <td style={{ fontSize: '0.78rem', color: s.rondaId ? '#065f46' : '#94a3b8' }}>
                                             {s.rondaId ? `✅ Asignada` : '–'}
                                         </td>
                                         <td>
-                                            <div style={{ display: 'flex', gap: '6px' }}>
-                                                <button
-                                                    className="btn"
-                                                    style={{ padding: '5px 10px', fontSize: '0.78rem', background: '#e0f2fe', color: '#0369a1' }}
-                                                    onClick={() => openEdit(s)}
-                                                >✏️ Editar</button>
-                                                <button
-                                                    className="btn"
-                                                    style={{ padding: '5px 10px', fontSize: '0.78rem', background: '#fee2e2', color: '#991b1b' }}
-                                                    onClick={() => handleDelete(s.id)}
-                                                >🗑️</button>
-                                            </div>
+                                            {isAdmin && (
+                                                <div style={{ display: 'flex', gap: '6px' }}>
+                                                    <button
+                                                        className="btn"
+                                                        style={{ padding: '5px 10px', fontSize: '0.78rem', background: '#e0f2fe', color: '#0369a1' }}
+                                                        onClick={() => openEdit(s)}
+                                                    >✏️ Editar</button>
+                                                    <button
+                                                        className="btn"
+                                                        style={{ padding: '5px 10px', fontSize: '0.78rem', background: '#fee2e2', color: '#991b1b' }}
+                                                        onClick={() => handleDelete(s.id)}
+                                                    >🗑️</button>
+                                                </div>
+                                            )}
                                         </td>
                                     </tr>
                                 );
