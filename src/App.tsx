@@ -61,7 +61,7 @@ const App: React.FC = () => {
             <span>Salidas de Vehículos</span>
           </div>
 
-          <nav className="nav-links">
+          <nav className="nav-links" style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
             <div
               className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
               onClick={() => setActiveTab('dashboard')}
@@ -115,7 +115,7 @@ const App: React.FC = () => {
             )}
           </nav>
 
-          <div style={{ marginTop: 'auto', padding: '1rem', background: '#f8f9fa', borderRadius: '12px' }}>
+          <div style={{ padding: '1rem', background: '#f8f9fa', borderRadius: '12px', flexShrink: 0 }}>
             <div style={{ fontSize: '0.75rem', fontWeight: '600' }}>CESFAM FUTRONO</div>
             <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Región de Los Ríos</div>
           </div>
