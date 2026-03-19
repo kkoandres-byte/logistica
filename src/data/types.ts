@@ -24,15 +24,34 @@ export interface Personal {
 export interface Ronda {
   id: string;
   fecha: string;
-  tipoSalida: string; // Ronda Rural, Visita Domiciliaria, Treatment
+  tipoSalida: string;
   postaId: string;
-  paradasIntermediasIds?: string[]; // Up to 2 intermediate stops
+  paradasIntermediasIds?: string[];
   vehiculoId: string;
   conductorId: string;
-  pasajerosIds: string[]; // List of Staff IDs
-  indicaciones?: string; // Travel instructions
+  pasajerosIds: string[];
+  indicaciones?: string;
   horaSalida?: string;
   horaRetorno?: string;
-  accionRetorno?: string; // Permanecer en posta, Volver al CESFAM
-  viaticos?: Record<string, string>; // Maps ID of passenger to their '20%', '40%', or '100%' 
+  accionRetorno?: string;
+  viaticos?: Record<string, string>;
+  solicitudesIds?: string[];
+}
+
+export type TipoSolicitud =
+  | 'Visitas Domiciliarias'
+  | 'Traslado de Pacientes'
+  | 'Toma de Muestras'
+  | 'Procedimiento en Domicilio';
+
+export type EstadoSolicitud = 'Pendiente' | 'Aprobada' | 'Rechazada';
+
+export interface SolicitudSalida {
+  id: string;
+  fechaSolicitud: string;
+  solicitante: string;
+  tipoSalida: TipoSolicitud;
+  descripcion: string;
+  estado: EstadoSolicitud;
+  rondaId?: string;
 }

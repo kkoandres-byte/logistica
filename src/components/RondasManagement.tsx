@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { POSTAS, VEHICULOS, PERSONAL } from '../data/mockData';
-import type { Ronda, Posta, Vehiculo, Personal } from '../data/types';
+import type { Ronda, Posta, Vehiculo, Personal, SolicitudSalida } from '../data/types';
+import { getSolicitudesFirebase, updateSolicitudFirebase } from '../services/solicitudesService';
+import { TIPO_CONFIG } from './SolicitudesManagement';
 import { required, validate, timeRange } from '../utils/validation';
 import Toast from './Toast';
 import VehicleSeatMap from './VehicleSeatMap';
@@ -107,12 +109,20 @@ const RondasManagement: React.FC<RondasManagementProps> = ({ viewMode = 'form', 
         horaSalida: '08:00',
         horaRetorno: '16:00',
         accionRetorno: 'Volver al CESFAM',
-        viaticos: {} as Record<string, string>
+        viaticos: {} as Record<string, string>,
+        solicitudesIds: [] as string[]
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [touched, setTouched] = useState<Record<string, boolean>>({});
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+    const [solicitudesAprobadas, setSolicitudesAprobadas] = useState<SolicitudSalida[]>([]);
+
+    useEffect(() => {
+        getSolicitudesFirebase().then(all => {
+            setSolicitudesAprobadas(all.filter(s => s.estado === 'Aprobada' && !s.rondaId));
+        });
+    }, []);
 
     const selectedVehiculo = vehiculosList.find(v => v.id === formData.vehiculoId);
     const seatsAvailable = selectedVehiculo ? selectedVehiculo.capacidadTotal - formData.selectedPersonal.length : 0;
@@ -233,11 +243,20 @@ const RondasManagement: React.FC<RondasManagementProps> = ({ viewMode = 'form', 
                 const newRonda: Ronda = {
                     id: Math.random().toString(36).substr(2, 9),
                     ...formData,
-                    pasajerosIds: formData.selectedPersonal
+                    pasajerosIds: formData.selectedPersonal,
+                    solicitudesIds: formData.solicitudesIds
                 };
                 
                 // Save to Firebase
                 await addRondaFirebase(newRonda);
+
+                // Link each selected solicitud to this ronda
+                for (const solId of formData.solicitudesIds) {
+                    const sol = solicitudesAprobadas.find(s => s.id === solId);
+                    if (sol) await updateSolicitudFirebase({ ...sol, rondaId: newRonda.id });
+                }
+                // Refresh available solicitudes
+                getSolicitudesFirebase().then(all => setSolicitudesAprobadas(all.filter(s => s.estado === 'Aprobada' && !s.rondaId)));
                 
                 setRondas([newRonda, ...rondas]);
                 setToast({ message: 'Ronda programada y guardada en la Nube', type: 'success' });
@@ -253,7 +272,8 @@ const RondasManagement: React.FC<RondasManagementProps> = ({ viewMode = 'form', 
                 horaSalida: '08:00',
                 horaRetorno: '16:00',
                 accionRetorno: 'Volver al CESFAM',
-                viaticos: {}
+                viaticos: {},
+                solicitudesIds: []
             });
             setErrors({});
             setTouched({});
@@ -699,6 +719,59 @@ const RondasManagement: React.FC<RondasManagementProps> = ({ viewMode = 'form', 
                             {formData.indicaciones.length}/1000 caracteres
                         </div>
                     </div>
+
+                    {/* Solicitudes Aprobadas */}
+                    {solicitudesAprobadas.length > 0 && (
+                        <div className="form-group" style={{ marginTop: '1rem' }}>
+                            <label style={{ fontWeight: 700 }}>📋 Solicitudes Aprobadas (opcional)</label>
+                            <p style={{ fontSize: '0.78rem', color: '#64748b', marginBottom: '0.5rem' }}>
+                                Selecciona las solicitudes que se atenderán en esta salida
+                            </p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '200px', overflowY: 'auto' }}>
+                                {solicitudesAprobadas.map(s => {
+                                    const cfg = TIPO_CONFIG[s.tipoSalida];
+                                    const selected = formData.solicitudesIds.includes(s.id);
+                                    return (
+                                        <div
+                                            key={s.id}
+                                            onClick={() => {
+                                                const ids = selected
+                                                    ? formData.solicitudesIds.filter(id => id !== s.id)
+                                                    : [...formData.solicitudesIds, s.id];
+                                                setFormData({ ...formData, solicitudesIds: ids });
+                                            }}
+                                            style={{
+                                                display: 'flex', alignItems: 'center', gap: '10px',
+                                                padding: '8px 12px', borderRadius: '10px', cursor: 'pointer',
+                                                border: `2px solid ${selected ? cfg.color : '#e2e8f0'}`,
+                                                background: selected ? cfg.bg : 'white',
+                                                transition: 'all 0.15s'
+                                            }}
+                                        >
+                                            <span style={{ fontSize: '1.1rem' }}>{selected ? '✅' : '⬜'}</span>
+                                            <span style={{
+                                                padding: '2px 8px', borderRadius: '999px', fontSize: '0.7rem',
+                                                fontWeight: 700, background: cfg.bg, color: cfg.color, whiteSpace: 'nowrap'
+                                            }}>
+                                                {cfg.icon} {s.tipoSalida}
+                                            </span>
+                                            <span style={{ fontSize: '0.82rem', color: '#1e293b', fontWeight: 500, flex: 1 }}>
+                                                {s.solicitante}
+                                            </span>
+                                            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                                                {s.fechaSolicitud.split('-').reverse().join('/')}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            {formData.solicitudesIds.length > 0 && (
+                                <p style={{ fontSize: '0.78rem', color: '#065f46', fontWeight: 600, marginTop: '6px' }}>
+                                    ✅ {formData.solicitudesIds.length} solicitud(es) seleccionada(s)
+                                </p>
+                            )}
+                        </div>
+                    )}
 
                     <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
                         <button

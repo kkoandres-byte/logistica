@@ -9,13 +9,14 @@ import PostasManagement from './components/PostasManagement';
 import VehiculosManagement from './components/VehiculosManagement';
 import PersonalManagement from './components/PersonalManagement';
 import AuthGuard from './components/AuthGuard';
+import SolicitudesManagement from './components/SolicitudesManagement';
 
 type AuthView = 'login' | 'register' | 'authenticated';
 
 const App: React.FC = () => {
   const { isAuthenticated, isLoading, usuario } = useAuth();
   const [authView, setAuthView] = useState<AuthView>('login');
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'rondas' | 'salidas-programadas' | 'postas' | 'vehiculos' | 'personal'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'rondas' | 'salidas-programadas' | 'postas' | 'vehiculos' | 'personal' | 'solicitudes'>('dashboard');
 
   // Mostrar loading mientras se verifica la autenticación
   if (isLoading) {
@@ -46,6 +47,7 @@ const App: React.FC = () => {
       case 'postas': return usuario?.rol === 'admin' ? <PostasManagement /> : <Dashboard />;
       case 'vehiculos': return usuario?.rol === 'admin' ? <VehiculosManagement /> : <Dashboard />;
       case 'personal': return usuario?.rol === 'admin' ? <PersonalManagement /> : <Dashboard />;
+      case 'solicitudes': return usuario?.rol === 'admin' ? <SolicitudesManagement /> : <Dashboard />;
       default: return <Dashboard />;
     }
   };
@@ -103,6 +105,12 @@ const App: React.FC = () => {
                 >
                   <span>👥</span> Personal Médico
                 </div>
+                <div
+                  className={`nav-item ${activeTab === 'solicitudes' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('solicitudes')}
+                >
+                  <span>📋</span> Solicitudes de Salida
+                </div>
               </>
             )}
           </nav>
@@ -122,6 +130,7 @@ const App: React.FC = () => {
               {activeTab === 'postas' && 'Administración de Destinos'}
               {activeTab === 'vehiculos' && 'Control de Flota'}
               {activeTab === 'personal' && 'Gestión de Personal'}
+              {activeTab === 'solicitudes' && 'Solicitudes de Salida'}
             </h1>
             <UserMenu />
           </header>
