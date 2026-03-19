@@ -1,4 +1,4 @@
-import { collection, getDocs, updateDoc, deleteDoc, doc, setDoc, addDoc } from 'firebase/firestore';
+import { collection, getDocs, updateDoc, deleteDoc, doc, addDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { SolicitudSalida } from '../data/types';
 
@@ -27,7 +27,8 @@ export const addSolicitudFirebase = async (solicitud: Omit<SolicitudSalida, 'id'
 export const updateSolicitudFirebase = async (solicitud: SolicitudSalida): Promise<void> => {
     try {
         const ref = doc(db, COLLECTION_NAME, solicitud.id);
-        const { id, ...data } = solicitud;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id: _solicitudId, ...data } = solicitud;
         await updateDoc(ref, data);
     } catch (error) {
         console.error('Error al actualizar solicitud:', error);
