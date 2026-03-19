@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import type { UserRole } from '../data/authTypes';
 
 interface RegisterProps {
   onSwitchToLogin: () => void;
@@ -12,8 +11,7 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
     nombre: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    rol: 'personal' as UserRole
+    confirmPassword: ''
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -52,7 +50,7 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
       nombre: formData.nombre,
       email: formData.email,
       password: formData.password,
-      rol: formData.rol
+      rol: 'personal'
     });
 
     if (!result.success) {
@@ -100,18 +98,7 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="rol">Cargo / Rol</label>
-            <select
-              id="rol"
-              value={formData.rol}
-              onChange={(e) => setFormData({ ...formData, rol: e.target.value as UserRole })}
-              disabled={isLoading}
-            >
-              <option value="personal">Funcionario</option>
-              <option value="admin">Administrador</option>
-            </select>
-          </div>
+
 
           <div className="form-group">
             <label htmlFor="password">Contraseña</label>
