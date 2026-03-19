@@ -9,19 +9,8 @@ import {
 import { getPersonalFirebase } from '../services/dataService';
 import type { SolicitudSalida, TipoSolicitud, EstadoSolicitud, Personal } from '../data/types';
 
-/* ─── colour coding ──────────────────────────────────────────── */
-export const TIPO_CONFIG: Record<TipoSolicitud, { color: string; bg: string; icon: string }> = {
-    'Visitas Domiciliarias':     { color: '#1d4ed8', bg: '#dbeafe', icon: '🏠' },
-    'Traslado de Pacientes':     { color: '#b45309', bg: '#fef3c7', icon: '🚑' },
-    'Toma de Muestras':          { color: '#065f46', bg: '#d1fae5', icon: '🧪' },
-    'Procedimiento en Domicilio':{ color: '#7c3aed', bg: '#ede9fe', icon: '💉' },
-};
+import { TIPO_CONFIG, ESTADO_CONFIG } from '../data/config';
 
-const ESTADO_CONFIG: Record<EstadoSolicitud, { color: string; bg: string }> = {
-    Pendiente:  { color: '#92400e', bg: '#fef3c7' },
-    Aprobada:   { color: '#065f46', bg: '#d1fae5' },
-    Rechazada:  { color: '#991b1b', bg: '#fee2e2' },
-};
 
 const TIPOS: TipoSolicitud[] = [
     'Visitas Domiciliarias',
@@ -76,7 +65,12 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
         setLoading(false);
     };
 
-    useEffect(() => { load(); }, []);
+    useEffect(() => {
+        const init = async () => {
+            await load();
+        };
+        init();
+    }, []);
 
     const openNew = () => {
         setEditing(null);

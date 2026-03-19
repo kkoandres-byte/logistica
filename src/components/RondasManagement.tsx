@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { POSTAS, VEHICULOS, PERSONAL } from '../data/mockData';
 import type { Ronda, Posta, Vehiculo, Personal, SolicitudSalida } from '../data/types';
 import { getSolicitudesFirebase, updateSolicitudFirebase } from '../services/solicitudesService';
-import { TIPO_CONFIG } from './SolicitudesManagement';
+import { TIPO_CONFIG } from '../data/config';
 import { required, validate, timeRange } from '../utils/validation';
 import Toast from './Toast';
 import VehicleSeatMap from './VehicleSeatMap';
@@ -135,17 +135,18 @@ const RondasManagement: React.FC<RondasManagementProps> = ({
                 }
             }
 
-            setFormData(prev => ({
-                ...prev,
-                fecha: prefillData.fecha || prev.fecha,
-                indicaciones: prefillData.indicaciones || prev.indicaciones,
-                tipoSalida: prefillData.tipoSalida || prev.tipoSalida,
-                selectedPersonal: passengers,
-                solicitudesIds: prefillData.solicitudesIds || prev.solicitudesIds
-            }));
-
-            // Limpiar el prefill en el padre después de aplicar
-            if (onClearPrefill) onClearPrefill();
+            // Usar un timeout pequeño para no bloquear el renderizado actual
+            setTimeout(() => {
+                setFormData(prev => ({
+                    ...prev,
+                    fecha: prefillData.fecha || prev.fecha,
+                    indicaciones: prefillData.indicaciones || prev.indicaciones,
+                    tipoSalida: prefillData.tipoSalida || prev.tipoSalida,
+                    selectedPersonal: passengers,
+                    solicitudesIds: prefillData.solicitudesIds || prev.solicitudesIds
+                }));
+                if (onClearPrefill) onClearPrefill();
+            }, 0);
         }
     }, [prefillData, personalList, onClearPrefill]);
 
