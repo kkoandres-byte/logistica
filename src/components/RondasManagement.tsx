@@ -20,9 +20,16 @@ import { useAuth } from '../context/AuthContext';
 interface RondasManagementProps {
     viewMode?: 'form' | 'table';
     onSwitchTab?: () => void;
+    prefillData?: Partial<Ronda> & { solicitanteName?: string };
+    onClearPrefill?: () => void;
 }
 
-const RondasManagement: React.FC<RondasManagementProps> = ({ viewMode = 'form', onSwitchTab }) => {
+const RondasManagement: React.FC<RondasManagementProps> = ({ 
+    viewMode = 'form', 
+    onSwitchTab, 
+    prefillData,
+    onClearPrefill 
+}) => {
     const { usuario } = useAuth();
     const isAdmin = usuario?.rol === 'admin';
 
@@ -112,6 +119,35 @@ const RondasManagement: React.FC<RondasManagementProps> = ({ viewMode = 'form', 
         viaticos: {} as Record<string, string>,
         solicitudesIds: [] as string[]
     });
+
+    useEffect(() => {
+        if (prefillData) {
+            const passengers = [...(prefillData.pasajerosIds || [])];
+            
+            // Buscar al solicitante en la lista de personal por nombre o correo
+            if (prefillData.solicitanteName) {
+                const solicitanteEncontrado = personalList.find(p => 
+                    p.nombre === prefillData.solicitanteName || 
+                    p.correo === prefillData.solicitanteName
+                );
+                if (solicitanteEncontrado && !passengers.includes(solicitanteEncontrado.id)) {
+                    passengers.push(solicitanteEncontrado.id);
+                }
+            }
+
+            setFormData(prev => ({
+                ...prev,
+                fecha: prefillData.fecha || prev.fecha,
+                indicaciones: prefillData.indicaciones || prev.indicaciones,
+                tipoSalida: prefillData.tipoSalida || prev.tipoSalida,
+                selectedPersonal: passengers,
+                solicitudesIds: prefillData.solicitudesIds || prev.solicitudesIds
+            }));
+
+            // Limpiar el prefill en el padre después de aplicar
+            if (onClearPrefill) onClearPrefill();
+        }
+    }, [prefillData, personalList, onClearPrefill]);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [touched, setTouched] = useState<Record<string, boolean>>({});

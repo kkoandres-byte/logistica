@@ -39,7 +39,11 @@ const EMPTY_FORM = {
     fechaViaje: new Date().toISOString().split('T')[0]
 };
 
-const SolicitudesManagement: React.FC = () => {
+interface Props {
+    onApprove?: (s: SolicitudSalida) => void;
+}
+
+const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
     const { usuario } = useAuth();
     const isAdmin = usuario?.rol === 'admin';
     const [solicitudes, setSolicitudes] = useState<SolicitudSalida[]>([]);
@@ -127,6 +131,9 @@ const SolicitudesManagement: React.FC = () => {
         try {
             await updateSolicitudFirebase({ ...s, estado });
             setSolicitudes(prev => prev.map(x => x.id === s.id ? { ...x, estado } : x));
+            if (estado === 'Aprobada' && onApprove) {
+                onApprove(s);
+            }
         } catch {
             showToast('Error al cambiar estado', 'error');
         }
