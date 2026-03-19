@@ -57,7 +57,7 @@ const SolicitudesReport: React.FC = () => {
                                     <td style={{ padding: '12px' }}>
                                         {s.rondaId ? 
                                             <span style={{ color: '#059669', fontWeight: 600 }}>✅ Asignada</span> : 
-                                            <span style={{ color: '#94a3b8' }}>–</span>
+                                            (s.motivoRechazo ? <span style={{ color: '#991b1b', fontSize: '0.75rem' }}>❌ {s.motivoRechazo}</span> : <span style={{ color: '#94a3b8' }}>–</span>)
                                         }
                                     </td>
                                 </tr>

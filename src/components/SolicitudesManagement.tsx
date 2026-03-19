@@ -122,9 +122,27 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
     };
 
     const handleChangeEstado = async (s: SolicitudSalida, estado: EstadoSolicitud) => {
+        let motivo = '';
+        if (estado === 'Rechazada') {
+            const reasons = [
+                'Sin móvil disponible',
+                'Sin conductor disponible',
+                'Sin personal clínico disponible'
+            ];
+            const choice = window.prompt(`Indique el motivo del rechazo (escriba el número o el texto):\n1. ${reasons[0]}\n2. ${reasons[1]}\n3. ${reasons[2]}`);
+            
+            if (choice === null) return; // Canceló el prompt
+            
+            if (choice === '1') motivo = reasons[0];
+            else if (choice === '2') motivo = reasons[1];
+            else if (choice === '3') motivo = reasons[2];
+            else motivo = choice || 'Sin motivo especificado';
+        }
+
         try {
-            await updateSolicitudFirebase({ ...s, estado });
-            setSolicitudes(prev => prev.map(x => x.id === s.id ? { ...x, estado } : x));
+            const updated = { ...s, estado, motivoRechazo: motivo };
+            await updateSolicitudFirebase(updated);
+            setSolicitudes(prev => prev.map(x => x.id === s.id ? updated : x));
             if (estado === 'Aprobada' && onApprove) {
                 onApprove(s);
             }
@@ -338,8 +356,8 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                             )}
                                         </td>
                                         {isAdmin && (
-                                            <td style={{ fontSize: '0.78rem', color: s.rondaId ? '#065f46' : '#94a3b8' }}>
-                                                {s.rondaId ? `✅ Asignada` : '–'}
+                                            <td style={{ fontSize: '0.78rem', color: (s.rondaId || s.motivoRechazo) ? (s.estado === 'Rechazada' ? '#991b1b' : '#065f46') : '#94a3b8' }}>
+                                                {s.rondaId ? `✅ Asignada` : (s.motivoRechazo ? `❌ ${s.motivoRechazo}` : '–')}
                                             </td>
                                         )}
                                         <td>
