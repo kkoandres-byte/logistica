@@ -78,7 +78,7 @@ const SolicitudesManagement: React.FC = () => {
         setEditing(null);
         setForm({
             ...EMPTY_FORM,
-            solicitante: usuario?.nombre || '',
+            solicitante: usuario?.nombre || usuario?.email || '',
         });
         setShowForm(true);
     };
@@ -359,12 +359,17 @@ const SolicitudesManagement: React.FC = () => {
                         <form onSubmit={handleSubmit}>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                 <div className="form-group">
-                                    <label>Solicitante</label>
+                                    <label>Solicitante *</label>
                                     <input
                                         type="text"
                                         value={form.solicitante}
-                                        readOnly
-                                        style={{ background: '#f8fafc', color: '#64748b' }}
+                                        onChange={e => setForm({ ...form, solicitante: e.target.value })}
+                                        readOnly={!!(usuario?.nombre || usuario?.email)}
+                                        style={{ 
+                                            background: (usuario?.nombre || usuario?.email) ? '#f8fafc' : 'white', 
+                                            color: (usuario?.nombre || usuario?.email) ? '#64748b' : 'inherit' 
+                                        }}
+                                        placeholder="Tu nombre completo"
                                     />
                                 </div>
 
