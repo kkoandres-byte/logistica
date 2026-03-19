@@ -746,9 +746,12 @@ const RondasManagement: React.FC<RondasManagementProps> = ({ viewMode = 'form', 
                             <VehicleSeatMap
                                 vehiculo={selectedVehiculo}
                                 pasajeros={currentPassengers}
+                                allPersonal={personalList}
                                 viaticos={formData.viaticos}
                                 onViaticoChange={(id, val) => setFormData({ ...formData, viaticos: { ...formData.viaticos, [id]: val } })}
                                 conductor={personalList.find(p => p.id === formData.conductorId)}
+                                onAddPersonal={(id) => handleAddStaff(id)}
+                                onRemovePersonal={(id) => setFormData({ ...formData, selectedPersonal: formData.selectedPersonal.filter(sid => sid !== id) })}
                             />
                         )}
                     </div>
