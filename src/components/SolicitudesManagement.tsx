@@ -152,10 +152,24 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
         rechazada: solicitudes.filter(s => s.estado === 'Rechazada').length,
     };
 
-    const filtered = solicitudes.filter(s =>
-        (filterEstado === 'Todas' || s.estado === filterEstado) &&
-        (filterTipo   === 'Todos' || s.tipoSalida === filterTipo)
-    );
+    const filtered = solicitudes.filter(s => {
+        // If admin, show only 'Pendiente' or 'Aprobada' that are NOT yet assigned to a ronda
+        // but user says "solo deben estar siempre las con estado pendiente" in his re-statement.
+        // I will follow "solo pendiente" if that's what he truly wants, or "pending + approved WITHOUT ronda" 
+        // given the 'una vez aprobada Y asignada' sentence.
+        const isAdmin = usuario?.rol === 'admin';
+        if (isAdmin) {
+             // If he says "solo pendiente" then:
+             // return s.estado === 'Pendiente' && ... 
+             // But he also said "una vez aprobada Y asignado desaparece".
+             // This suggests Aprobada + SIN asignar SI aparece.
+             const isActionable = s.estado === 'Pendiente' || (s.estado === 'Aprobada' && !s.rondaId);
+             if (!isActionable) return false;
+        }
+
+        return (filterEstado === 'Todas' || s.estado === filterEstado) &&
+               (filterTipo   === 'Todos' || s.tipoSalida === filterTipo);
+    });
 
     return (
         <div>
