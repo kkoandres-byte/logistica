@@ -45,6 +45,7 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
     const [filterTipo, setFilterTipo] = useState<TipoSolicitud | 'Todos'>('Todos');
     const [searchTerm, setSearchTerm] = useState('');
     const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+    const [rejectionTarget, setRejectionTarget] = useState<SolicitudSalida | null>(null);
 
     const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
         setToast({ msg, type });
@@ -122,32 +123,32 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
     };
 
     const handleChangeEstado = async (s: SolicitudSalida, estado: EstadoSolicitud) => {
-        let motivo = '';
         if (estado === 'Rechazada') {
-            const reasons = [
-                'Sin móvil disponible',
-                'Sin conductor disponible',
-                'Sin personal clínico disponible'
-            ];
-            const choice = window.prompt(`Indique el motivo del rechazo (escriba el número o el texto):\n1. ${reasons[0]}\n2. ${reasons[1]}\n3. ${reasons[2]}`);
-            
-            if (choice === null) return; // Canceló el prompt
-            
-            if (choice === '1') motivo = reasons[0];
-            else if (choice === '2') motivo = reasons[1];
-            else if (choice === '3') motivo = reasons[2];
-            else motivo = choice || 'Sin motivo especificado';
+            setRejectionTarget(s);
+            return;
         }
 
         try {
-            const updated = { ...s, estado, motivoRechazo: motivo };
-            await updateSolicitudFirebase(updated);
-            setSolicitudes(prev => prev.map(x => x.id === s.id ? updated : x));
+            await updateSolicitudFirebase({ ...s, estado });
+            setSolicitudes(prev => prev.map(x => x.id === s.id ? { ...x, estado } : x));
             if (estado === 'Aprobada' && onApprove) {
                 onApprove(s);
             }
         } catch {
             showToast('Error al cambiar estado', 'error');
+        }
+    };
+
+    const handleConfirmRejection = async (motivo: string) => {
+        if (!rejectionTarget) return;
+        try {
+            const updated = { ...rejectionTarget, estado: 'Rechazada' as EstadoSolicitud, motivoRechazo: motivo };
+            await updateSolicitudFirebase(updated);
+            setSolicitudes(prev => prev.map(x => x.id === updated.id ? updated : x));
+            setRejectionTarget(null);
+            showToast('Solicitud rechazada');
+        } catch {
+            showToast('Error al rechazar', 'error');
         }
     };
 
@@ -576,6 +577,46 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Rejection Modal */}
+            {rejectionTarget && (
+                <div className="modal-overlay" style={{ background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)' }}>
+                    <div className="card" style={{ maxWidth: '400px', width: '90%', padding: '2rem' }}>
+                        <h3 style={{ marginBottom: '1rem', color: '#991b1b' }}>Motivo de Rechazo</h3>
+                        <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1.5rem' }}>
+                            Seleccione el motivo por el cual no se puede realizar el viaje:
+                        </p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                            {[
+                                'Sin móvil disponible',
+                                'Sin conductor disponible',
+                                'Sin personal clínico disponible',
+                                'Otros'
+                            ].map(reason => (
+                                <button
+                                    key={reason}
+                                    className="btn"
+                                    onClick={() => handleConfirmRejection(reason)}
+                                    style={{ 
+                                        justifyContent: 'flex-start', padding: '0.75rem 1rem', 
+                                        textAlign: 'left', background: '#fef2f2', color: '#991b1b',
+                                        border: '1px solid #fee2e2'
+                                    }}
+                                >
+                                    {reason}
+                                </button>
+                            ))}
+                            <button 
+                                className="btn" 
+                                style={{ marginTop: '0.5rem', background: '#f1f5f9', color: '#475569' }}
+                                onClick={() => setRejectionTarget(null)}
+                            >
+                                Cancelar
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
