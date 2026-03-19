@@ -523,7 +523,7 @@ const RondasManagement: React.FC<RondasManagementProps> = ({
                                     <thead>
                                         <tr>
                                             <th>Fecha</th>
-                                            <th>Ruta (Postas)</th>
+                                            <th>Ruta (Destino)</th>
                                             <th>Vehículo</th>
                                             <th>Funcionarios</th>
                                             <th className="col-actions"></th>
@@ -720,7 +720,7 @@ const RondasManagement: React.FC<RondasManagementProps> = ({
                         </div>
                         <div className="form-field">
                             <div className="form-group">
-                                <label>Posta de Destino</label>
+                                <label>Destino</label>
                                 <select
                                     value={formData.postaId}
                                     onChange={e => setFormData({ ...formData, postaId: e.target.value, paradasIntermediasIds: formData.paradasIntermediasIds.filter(id => id !== e.target.value) })}
