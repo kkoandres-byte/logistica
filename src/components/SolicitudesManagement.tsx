@@ -17,6 +17,7 @@ const TIPOS: TipoSolicitud[] = [
     'Traslado de Pacientes',
     'Toma de Muestras',
     'Procedimiento en Domicilio',
+    'Ronda Rural',
 ];
 
 const EMPTY_FORM = {
@@ -444,13 +445,17 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                     {TIPO_CONFIG[form.tipoSalida].icon} {form.tipoSalida}
                                 </div>
 
-                                {form.tipoSalida === 'Visitas Domiciliarias' && (
+                                {(form.tipoSalida === 'Visitas Domiciliarias' || form.tipoSalida === 'Ronda Rural') && (
                                     <div style={{ marginTop: '1rem', padding: '1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '0.5rem' }}>
-                                            Personal Acompañante ({form.funcionariosIds.length}/4)
-                                        </label>
-                                        
-                                        {form.funcionariosIds.length < 4 && (
+                                        {(() => {
+                                            const maxPax = form.tipoSalida === 'Ronda Rural' ? 12 : 4;
+                                            return (
+                                                <>
+                                                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '0.5rem' }}>
+                                                        Personal Acompañante ({form.funcionariosIds.length}/{maxPax})
+                                                    </label>
+                                                    
+                                                    {form.funcionariosIds.length < maxPax && (
                                             <div style={{ position: 'relative', marginBottom: '0.75rem' }}>
                                                 <input
                                                     type="text"
@@ -538,7 +543,10 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                                     Ningún acompañante seleccionado
                                                 </div>
                                             )}
-                                        </div>
+                                                    </div>
+                                                </>
+                                            );
+                                        })()}
                                     </div>
                                 )}
                             </div>
