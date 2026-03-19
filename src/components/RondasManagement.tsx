@@ -12,27 +12,8 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useAuth } from '../context/AuthContext';
 
-const getEspecialidadAbbr = (especialidad: string): string => {
-    const map: Record<string, string> = {
-        'Médico': 'MED',
-        'Enfermero/a': 'ENF',
-        'TENS': 'TENS',
-        'Terapeuta': 'TER',
-        'Kinesiólogo': 'KINE',
-        'Matrona': 'MAT',
-        'Odontólogo': 'ODON',
-        'Odontóloga': 'ODON',
-        'Nutricionista': 'NUT',
-        'Asistente Social': 'ASIS',
-        'Psicólogo': 'PSI',
-        'Psicóloga': 'PSI',
-        'Educadora': 'EDU',
-        'Podóloga': 'PODO',
-        'Fonoaudiólogo': 'FONO',
-        'Conductor': 'COND'
-    };
-    return map[especialidad] || especialidad.substring(0, 4).toUpperCase();
-};
+
+
 
 interface RondasManagementProps {
     viewMode?: 'form' | 'table';
@@ -756,38 +737,11 @@ const RondasManagement: React.FC<RondasManagementProps> = ({ viewMode = 'form', 
                         )}
                     </div>
 
-                    <div className="card no-print" style={{ marginTop: '1.5rem' }}>
-                        <h3 className="card-title">Seleccionar Personal ({formData.selectedPersonal.length} seleccionados)</h3>
-                        {errors.selectedPersonal && touched.selectedPersonal && (
-                            <div className="error-message" style={{ marginBottom: '1rem' }}>
-                                <span>⚠️</span> {errors.selectedPersonal}
-                            </div>
-                        )}
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                            {personalList.filter(p => p.especialidad !== 'Conductor').map(p => (
-                                <button
-                                    key={p.id}
-                                    className={`btn ${formData.selectedPersonal.includes(p.id) ? 'btn-primary' : 'nav-item'}`}
-                                    style={{
-                                        padding: '8px 12px',
-                                        fontSize: '0.7rem',
-                                        textAlign: 'left',
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        border: '1px solid #e2e8f0',
-                                        borderRadius: '6px'
-                                    }}
-                                    onClick={() => handleAddStaff(p.id)}
-                                >
-                                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '70%' }}>{p.nombre}</span>
-                                    <span className="badge" style={{ fontSize: '0.6rem', padding: '2px 4px', background: formData.selectedPersonal.includes(p.id) ? 'rgba(255,255,255,0.2)' : '#f1f5f9' }}>
-                                        {getEspecialidadAbbr(p.especialidad)}
-                                    </span>
-                                </button>
-                            ))}
+                    {errors.selectedPersonal && touched.selectedPersonal && (
+                        <div className="error-message" style={{ marginTop: '1rem' }}>
+                            <span>⚠️</span> {errors.selectedPersonal}
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </>
