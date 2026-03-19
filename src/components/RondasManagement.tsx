@@ -696,8 +696,10 @@ const RondasManagement: React.FC<RondasManagementProps> = ({
                             <label>Tipo de Salida</label>
                             <select value={formData.tipoSalida} onChange={e => setFormData({ ...formData, tipoSalida: e.target.value })}>
                                 <option value="Ronda Rural">Ronda Rural</option>
-                                <option value="Visita Domiciliaria">Visita Domiciliaria</option>
-                                <option value="Tratamiento en Domicilio">Tratamiento en Domicilio</option>
+                                <option value="Visitas Domiciliarias">Visitas Domiciliarias</option>
+                                <option value="Procedimiento en Domicilio">Procedimiento en Domicilio</option>
+                                <option value="Toma de Muestras">Toma de Muestras</option>
+                                <option value="Traslado de Pacientes">Traslado de Pacientes</option>
                                 <option value="Area">Area</option>
                             </select>
                         </div>

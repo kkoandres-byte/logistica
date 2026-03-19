@@ -42,7 +42,9 @@ export type TipoSolicitud =
   | 'Visitas Domiciliarias'
   | 'Traslado de Pacientes'
   | 'Toma de Muestras'
-  | 'Procedimiento en Domicilio';
+  | 'Procedimiento en Domicilio'
+  | 'Ronda Rural'
+  | 'Area';
 
 export type EstadoSolicitud = 'Pendiente' | 'Aprobada' | 'Rechazada';
 
