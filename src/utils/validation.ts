@@ -75,11 +75,12 @@ export const email = (value: string, fieldName: string): ValidationError | null 
  * Valida formato de patente chilena (ABCD-12 o AB-1234)
  */
 export const patente = (value: string, fieldName: string): ValidationError | null => {
-  const patenteRegex = /^[A-Z]{4}\d{2}$|^[A-Z]{2}-\d{4}$/i;
-  if (!patenteRegex.test(value.replace(/-/g, '').toUpperCase().replace(/(\w{4})(\d{2})/, '$1-$2'))) {
+  const cleaned = value.replace(/-/g, '').trim().toUpperCase();
+  const patenteRegex = /^[A-Z]{4}\d{2}$|^[A-Z]{2}\d{4}$/;
+  if (!patenteRegex.test(cleaned)) {
     return {
       field: fieldName,
-      message: `${fieldName} debe tener formato válido (ej: ABCD-12)`,
+      message: `${fieldName} debe tener formato válido (ej: ABCD-12 o AB-1234)`,
       type: 'format'
     };
   }
