@@ -108,14 +108,12 @@ const App: React.FC = () => {
               <span>📄</span> Salidas Programadas
             </div>
 
-            {usuario?.rol !== 'admin' && (
-              <div
-                className={`nav-item ${activeTab === 'solicitudes' ? 'active' : ''}`}
-                onClick={() => setActiveTab('solicitudes')}
-              >
-                <span>📋</span> Solicitudes de Salida
-              </div>
-            )}
+            <div
+              className={`nav-item ${activeTab === 'solicitudes' ? 'active' : ''}`}
+              onClick={() => setActiveTab('solicitudes')}
+            >
+              <span>📋</span> Solicitudes de Salida
+            </div>
 
             {/* ── Solo Administrador ── */}
             {usuario?.rol === 'admin' && (

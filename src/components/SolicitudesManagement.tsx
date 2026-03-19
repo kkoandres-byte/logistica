@@ -153,16 +153,13 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
     };
 
     const filtered = solicitudes.filter(s => {
-        // If admin, show only 'Pendiente' or 'Aprobada' that are NOT yet assigned to a ronda
-        // but user says "solo deben estar siempre las con estado pendiente" in his re-statement.
-        // I will follow "solo pendiente" if that's what he truly wants, or "pending + approved WITHOUT ronda" 
-        // given the 'una vez aprobada Y asignada' sentence.
+        // ¿Es mi propia solicitud?
+        const isMyOwn = s.solicitante === usuario?.nombre || s.solicitante === usuario?.email;
+
+        // Si soy admin, aplicar filtro de "Bandeja de Entrada" (solo lo pendiente de gestión)
+        // EXCEPTO si es mi propia solicitud, la cual quiero ver siempre en esta lista.
         const isAdmin = usuario?.rol === 'admin';
-        if (isAdmin) {
-             // If he says "solo pendiente" then:
-             // return s.estado === 'Pendiente' && ... 
-             // But he also said "una vez aprobada Y asignado desaparece".
-             // This suggests Aprobada + SIN asignar SI aparece.
+        if (isAdmin && !isMyOwn) {
              const isActionable = s.estado === 'Pendiente' || (s.estado === 'Aprobada' && !s.rondaId);
              if (!isActionable) return false;
         }
