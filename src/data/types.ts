@@ -49,6 +49,7 @@ export type EstadoSolicitud = 'Pendiente' | 'Aprobada' | 'Rechazada';
 export interface SolicitudSalida {
   id: string;
   fechaSolicitud: string;
+  fechaViaje: string; // Fecha programada para el viaje
   solicitante: string;
   tipoSalida: TipoSolicitud;
   descripcion: string;

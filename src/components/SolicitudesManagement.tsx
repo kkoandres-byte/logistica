@@ -35,7 +35,8 @@ const EMPTY_FORM = {
     tipoSalida: 'Visitas Domiciliarias' as TipoSolicitud,
     descripcion: '',
     estado: 'Pendiente' as EstadoSolicitud,
-    funcionariosIds: [] as string[]
+    funcionariosIds: [] as string[],
+    fechaViaje: new Date().toISOString().split('T')[0]
 };
 
 const SolicitudesManagement: React.FC = () => {
@@ -75,7 +76,10 @@ const SolicitudesManagement: React.FC = () => {
 
     const openNew = () => {
         setEditing(null);
-        setForm(EMPTY_FORM);
+        setForm({
+            ...EMPTY_FORM,
+            solicitante: usuario?.nombre || '',
+        });
         setShowForm(true);
     };
 
@@ -86,7 +90,8 @@ const SolicitudesManagement: React.FC = () => {
             tipoSalida: s.tipoSalida,
             descripcion: s.descripcion,
             estado: s.estado,
-            funcionariosIds: s.funcionariosIds || []
+            funcionariosIds: s.funcionariosIds || [],
+            fechaViaje: s.fechaViaje || s.fechaSolicitud
         });
         setShowForm(true);
     };
@@ -245,7 +250,8 @@ const SolicitudesManagement: React.FC = () => {
                     <table>
                         <thead>
                             <tr>
-                                <th>Fecha</th>
+                                <th>F. Solicitud</th>
+                                <th>F. Viaje</th>
                                 <th>Solicitante</th>
                                 <th>Tipo</th>
                                 <th>Descripción</th>
@@ -260,8 +266,11 @@ const SolicitudesManagement: React.FC = () => {
                                 const estadoCfg = ESTADO_CONFIG[s.estado];
                                 return (
                                     <tr key={s.id}>
-                                        <td style={{ whiteSpace: 'nowrap', fontSize: '0.82rem' }}>
+                                        <td style={{ whiteSpace: 'nowrap', fontSize: '0.82rem', color: '#64748b' }}>
                                             {s.fechaSolicitud.split('-').reverse().join('/')}
+                                        </td>
+                                        <td style={{ whiteSpace: 'nowrap', fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>
+                                            {s.fechaViaje ? s.fechaViaje.split('-').reverse().join('/') : '–'}
                                         </td>
                                         <td style={{ fontWeight: 500 }}>
                                             {s.solicitante}
@@ -348,14 +357,26 @@ const SolicitudesManagement: React.FC = () => {
                             {editing ? '✏️ Editar Solicitud' : '➕ Nueva Solicitud de Salida'}
                         </h3>
                         <form onSubmit={handleSubmit}>
-                            <div className="form-group">
-                                <label>Solicitante *</label>
-                                <input
-                                    type="text"
-                                    value={form.solicitante}
-                                    onChange={e => setForm({ ...form, solicitante: e.target.value })}
-                                    placeholder="Nombre del funcionario solicitante"
-                                />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div className="form-group">
+                                    <label>Solicitante</label>
+                                    <input
+                                        type="text"
+                                        value={form.solicitante}
+                                        readOnly
+                                        style={{ background: '#f8fafc', color: '#64748b' }}
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Fecha para el viaje *</label>
+                                    <input
+                                        type="date"
+                                        value={form.fechaViaje}
+                                        onChange={e => setForm({ ...form, fechaViaje: e.target.value })}
+                                        required
+                                    />
+                                </div>
                             </div>
 
                             <div className="form-group">
