@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import type { SolicitudSalida, TipoSolicitud, EstadoSolicitud } from '../data/types';
 import {
     getSolicitudesFirebase,
     addSolicitudFirebase,
     updateSolicitudFirebase,
     deleteSolicitudFirebase
 } from '../services/solicitudesService';
+import { getPersonalFirebase } from '../services/dataService';
+import type { SolicitudSalida, TipoSolicitud, EstadoSolicitud, Personal } from '../data/types';
 
 /* ─── colour coding ──────────────────────────────────────────── */
 export const TIPO_CONFIG: Record<TipoSolicitud, { color: string; bg: string; icon: string }> = {
@@ -34,12 +35,14 @@ const EMPTY_FORM = {
     tipoSalida: 'Visitas Domiciliarias' as TipoSolicitud,
     descripcion: '',
     estado: 'Pendiente' as EstadoSolicitud,
+    funcionariosIds: [] as string[]
 };
 
 const SolicitudesManagement: React.FC = () => {
     const { usuario } = useAuth();
     const isAdmin = usuario?.rol === 'admin';
     const [solicitudes, setSolicitudes] = useState<SolicitudSalida[]>([]);
+    const [allPersonal, setAllPersonal] = useState<Personal[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [editing, setEditing] = useState<SolicitudSalida | null>(null);
@@ -55,10 +58,15 @@ const SolicitudesManagement: React.FC = () => {
 
     const load = async () => {
         setLoading(true);
-        const data = await getSolicitudesFirebase();
+        const [solicitudesData, personalData] = await Promise.all([
+            getSolicitudesFirebase(),
+            getPersonalFirebase()
+        ]);
+        
         // Sort newest first
-        data.sort((a, b) => b.fechaSolicitud.localeCompare(a.fechaSolicitud));
-        setSolicitudes(data);
+        solicitudesData.sort((a, b) => b.fechaSolicitud.localeCompare(a.fechaSolicitud));
+        setSolicitudes(solicitudesData);
+        setAllPersonal(personalData);
         setLoading(false);
     };
 
@@ -77,6 +85,7 @@ const SolicitudesManagement: React.FC = () => {
             tipoSalida: s.tipoSalida,
             descripcion: s.descripcion,
             estado: s.estado,
+            funcionariosIds: s.funcionariosIds || []
         });
         setShowForm(true);
     };
@@ -253,7 +262,14 @@ const SolicitudesManagement: React.FC = () => {
                                         <td style={{ whiteSpace: 'nowrap', fontSize: '0.82rem' }}>
                                             {s.fechaSolicitud.split('-').reverse().join('/')}
                                         </td>
-                                        <td style={{ fontWeight: 500 }}>{s.solicitante}</td>
+                                        <td style={{ fontWeight: 500 }}>
+                                            {s.solicitante}
+                                            {s.funcionariosIds && s.funcionariosIds.length > 0 && (
+                                                <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 400, marginTop: '2px' }}>
+                                                    + {s.funcionariosIds.length} acompañante{s.funcionariosIds.length > 1 ? 's' : ''}
+                                                </div>
+                                            )}
+                                        </td>
                                         <td>
                                             <span style={{
                                                 display: 'inline-flex', alignItems: 'center', gap: '5px',
@@ -359,6 +375,64 @@ const SolicitudesManagement: React.FC = () => {
                                 }}>
                                     {TIPO_CONFIG[form.tipoSalida].icon} {form.tipoSalida}
                                 </div>
+
+                                {form.tipoSalida === 'Visitas Domiciliarias' && (
+                                    <div style={{ marginTop: '1rem', padding: '1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '0.5rem' }}>
+                                            Personal Acompañante ({form.funcionariosIds.length}/4)
+                                        </label>
+                                        
+                                        {form.funcionariosIds.length < 4 && (
+                                            <select
+                                                value=""
+                                                onChange={e => {
+                                                    const id = e.target.value;
+                                                    if (id && !form.funcionariosIds.includes(id)) {
+                                                        setForm({ ...form, funcionariosIds: [...form.funcionariosIds, id] });
+                                                    }
+                                                }}
+                                                style={{ marginBottom: '0.75rem', fontSize: '0.875rem' }}
+                                            >
+                                                <option value="">+ Agregar personal...</option>
+                                                {allPersonal
+                                                    .filter(p => !form.funcionariosIds.includes(p.id))
+                                                    .map(p => (
+                                                        <option key={p.id} value={p.id}>{p.nombre} ({p.especialidad})</option>
+                                                    ))
+                                                }
+                                            </select>
+                                        )}
+
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                            {form.funcionariosIds.map(fid => {
+                                                const p = allPersonal.find(x => x.id === fid);
+                                                if (!p) return null;
+                                                return (
+                                                    <div key={fid} style={{
+                                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                                        padding: '0.5rem 0.75rem', background: 'white', borderRadius: '8px',
+                                                        border: '1px solid #e2e8f0', fontSize: '0.85rem'
+                                                    }}>
+                                                        <span>{p.nombre}</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setForm({ ...form, funcionariosIds: form.funcionariosIds.filter(x => x !== fid) })}
+                                                            style={{
+                                                                background: 'none', border: 'none', color: '#ef4444',
+                                                                cursor: 'pointer', padding: '2px 6px', fontSize: '1rem'
+                                                            }}
+                                                        >✕</button>
+                                                    </div>
+                                                );
+                                            })}
+                                            {form.funcionariosIds.length === 0 && (
+                                                <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', padding: '0.5rem' }}>
+                                                    Ningún acompañante seleccionado
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="form-group">

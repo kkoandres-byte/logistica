@@ -54,4 +54,5 @@ export interface SolicitudSalida {
   descripcion: string;
   estado: EstadoSolicitud;
   rondaId?: string;
+  funcionariosIds?: string[]; // hasta 4, solo para Visitas Domiciliarias
 }
