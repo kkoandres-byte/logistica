@@ -258,7 +258,7 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                 <th>Tipo</th>
                                 <th>Descripción</th>
                                 <th>Estado</th>
-                                {isAdmin && <th>Ronda</th>}
+                                {isAdmin && <th>Estado de solicitud</th>}
                                 <th>Acciones</th>
                             </tr>
                         </thead>
