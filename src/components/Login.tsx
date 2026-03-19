@@ -37,19 +37,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
     setIsLoading(false);
   };
 
-  const handleDemoLogin = (role: string) => {
-    const demos: Record<string, { email: string; password: string }> = {
-      admin: { email: 'calvarado@munifutrono.cl', password: 'Loki5050' },
-      coordinador: { email: 'coordinador@cesfamfutrono.cl', password: 'coord123' },
-      conductor: { email: 'conductor@cesfamfutrono.cl', password: 'cond123' },
-      personal: { email: 'tens@cesfamfutrono.cl', password: 'tens123' }
-    };
 
-    const demo = demos[role];
-    if (demo) {
-      setFormData({ email: demo.email, password: demo.password });
-    }
-  };
 
   return (
     <div className="auth-container">
@@ -118,45 +106,6 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
           </button>
         </form>
 
-        <div className="auth-divider">
-          <span>Acceso rápido</span>
-        </div>
-
-        <div className="demo-buttons">
-          <button
-            type="button"
-            className="demo-btn"
-            onClick={() => handleDemoLogin('admin')}
-            title="Administrador"
-          >
-            👨‍💼 Claudio A.
-          </button>
-          <button
-            type="button"
-            className="demo-btn"
-            onClick={() => handleDemoLogin('coordinador')}
-            title="Coordinador"
-          >
-            📋 Coordinador
-          </button>
-          <button
-            type="button"
-            className="demo-btn"
-            onClick={() => handleDemoLogin('conductor')}
-            title="Conductor"
-          >
-            🚐 Conductor
-          </button>
-          <button
-            type="button"
-            className="demo-btn"
-            onClick={() => handleDemoLogin('personal')}
-            title="Personal"
-          >
-            👨‍⚕️ Personal
-          </button>
-        </div>
-
         <div className="auth-footer">
           <p>
             ¿No tienes cuenta?{' '}
@@ -168,29 +117,6 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
               Solicitar registro
             </button>
           </p>
-        </div>
-
-        <div className="auth-credentials">
-          <p className="credentials-title">Credenciales de prueba:</p>
-          <div className="credentials-grid">
-            <div className="credential-item">
-              <strong>Admin:</strong> calvarado@munifutrono.cl / Loki5050
-            </div>
-            <div className="credential-item">
-              <strong>Coordinador:</strong> coordinador@cesfamfutrono.cl / coord123
-            </div>
-          </div>
-          <button
-            type="button"
-            className="btn"
-            style={{ marginTop: '1rem', background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', width: '100%', fontSize: '0.75rem', padding: '0.5rem' }}
-            onClick={() => {
-              localStorage.clear();
-              window.location.reload();
-            }}
-          >
-            🗑️ Resetear datos y recargar
-          </button>
         </div>
       </div>
     </div>
