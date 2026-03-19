@@ -10,6 +10,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import { useAuth } from '../context/AuthContext';
 
 const getEspecialidadAbbr = (especialidad: string): string => {
     const map: Record<string, string> = {
@@ -39,6 +40,9 @@ interface RondasManagementProps {
 }
 
 const RondasManagement: React.FC<RondasManagementProps> = ({ viewMode = 'form', onSwitchTab }) => {
+    const { usuario } = useAuth();
+    const isAdmin = usuario?.rol === 'admin';
+
     // Load dynamic data from localStorage
     const [postosList] = useState<Posta[]>(() => {
         const saved = localStorage.getItem('postas_data');
@@ -464,8 +468,12 @@ const RondasManagement: React.FC<RondasManagementProps> = ({ viewMode = 'form', 
                                 eventClick={(info) => {
                                     const r = info.event.extendedProps.ronda as Ronda;
                                     const dest = postosList.find(pt => pt.id === r.postaId);
-                                    if (window.confirm(`¿Editar la salida a ${dest?.nombre} programada para el ${r.fecha.split('-').reverse().join('-')}?`)) {
-                                        handleEditRonda(r);
+                                    if (isAdmin) {
+                                        if (window.confirm(`¿Editar la salida a ${dest?.nombre} programada para el ${r.fecha.split('-').reverse().join('-')}?`)) {
+                                            handleEditRonda(r);
+                                        }
+                                    } else {
+                                        setToast({ message: 'Solo los administradores pueden editar las salidas.', type: 'info' });
                                     }
                                 }}
                             />
@@ -508,10 +516,10 @@ const RondasManagement: React.FC<RondasManagementProps> = ({ viewMode = 'form', 
                                                     <td><span className="badge badge-success">{r.pasajerosIds.length}</span></td>
                                                     <td style={{ textAlign: 'right' }}>
                                                         <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
-                                                            <button className="btn no-print" style={{ width: '30px', height: '30px', padding: 0, background: '#e0f2fe', color: '#0369a1' }} onClick={() => handleEditRonda(r)} title="Editar">✏️</button>
+                                                            {isAdmin && <button className="btn no-print" style={{ width: '30px', height: '30px', padding: 0, background: '#e0f2fe', color: '#0369a1' }} onClick={() => handleEditRonda(r)} title="Editar">✏️</button>}
                                                             <button className="btn no-print" style={{ width: '30px', height: '30px', padding: 0, background: '#f1f5f9', color: '#475569' }} onClick={() => handlePrint(r)} title="Imprimir">🖨️</button>
-                                                            <button className="btn no-print" style={{ width: '30px', height: '30px', padding: 0, background: '#dcfce7', color: '#166534' }} onClick={() => handleEmailRonda(r)} title="Enviar por Correo">📨</button>
-                                                            <button className="btn no-print" style={{ width: '30px', height: '30px', padding: 0, background: '#fee2e2', color: '#991b1b' }} onClick={() => handleDeleteRonda(r.id)} title="Eliminar">🗑️</button>
+                                                            {isAdmin && <button className="btn no-print" style={{ width: '30px', height: '30px', padding: 0, background: '#dcfce7', color: '#166534' }} onClick={() => handleEmailRonda(r)} title="Enviar por Correo">📨</button>}
+                                                            {isAdmin && <button className="btn no-print" style={{ width: '30px', height: '30px', padding: 0, background: '#fee2e2', color: '#991b1b' }} onClick={() => handleDeleteRonda(r.id)} title="Eliminar">🗑️</button>}
                                                         </div>
                                                     </td>
                                                 </tr>

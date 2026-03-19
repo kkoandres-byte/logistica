@@ -13,7 +13,7 @@ import AuthGuard from './components/AuthGuard';
 type AuthView = 'login' | 'register' | 'authenticated';
 
 const App: React.FC = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, usuario } = useAuth();
   const [authView, setAuthView] = useState<AuthView>('login');
   const [activeTab, setActiveTab] = useState<'dashboard' | 'rondas' | 'salidas-programadas' | 'postas' | 'vehiculos' | 'personal'>('dashboard');
 
@@ -41,11 +41,11 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard': return <Dashboard />;
-      case 'rondas': return <RondasManagement viewMode="form" />;
-      case 'salidas-programadas': return <RondasManagement viewMode="table" onSwitchTab={() => setActiveTab('rondas')} />;
-      case 'postas': return <PostasManagement />;
-      case 'vehiculos': return <VehiculosManagement />;
-      case 'personal': return <PersonalManagement />;
+      case 'salidas-programadas': return <RondasManagement viewMode="table" onSwitchTab={usuario?.rol === 'admin' ? () => setActiveTab('rondas') : undefined} />;
+      case 'rondas': return usuario?.rol === 'admin' ? <RondasManagement viewMode="form" /> : <Dashboard />;
+      case 'postas': return usuario?.rol === 'admin' ? <PostasManagement /> : <Dashboard />;
+      case 'vehiculos': return usuario?.rol === 'admin' ? <VehiculosManagement /> : <Dashboard />;
+      case 'personal': return usuario?.rol === 'admin' ? <PersonalManagement /> : <Dashboard />;
       default: return <Dashboard />;
     }
   };
@@ -66,36 +66,45 @@ const App: React.FC = () => {
             >
               <span>📊</span> Dashboard
             </div>
-            <div
-              className={`nav-item ${activeTab === 'rondas' ? 'active' : ''}`}
-              onClick={() => setActiveTab('rondas')}
-            >
-              <span>🗓️</span> Programar Nueva Salida
-            </div>
+            
+            {usuario?.rol === 'admin' && (
+              <div
+                className={`nav-item ${activeTab === 'rondas' ? 'active' : ''}`}
+                onClick={() => setActiveTab('rondas')}
+              >
+                <span>🗓️</span> Programar Nueva Salida
+              </div>
+            )}
+
             <div
               className={`nav-item ${activeTab === 'salidas-programadas' ? 'active' : ''}`}
               onClick={() => setActiveTab('salidas-programadas')}
             >
               <span>📄</span> Salidas Programadas
             </div>
-            <div
-              className={`nav-item ${activeTab === 'postas' ? 'active' : ''}`}
-              onClick={() => setActiveTab('postas')}
-            >
-              <span>🏠</span> Destinos
-            </div>
-            <div
-              className={`nav-item ${activeTab === 'vehiculos' ? 'active' : ''}`}
-              onClick={() => setActiveTab('vehiculos')}
-            >
-              <span>🛡️</span> Vehículos
-            </div>
-            <div
-              className={`nav-item ${activeTab === 'personal' ? 'active' : ''}`}
-              onClick={() => setActiveTab('personal')}
-            >
-              <span>👥</span> Personal Médico
-            </div>
+
+            {usuario?.rol === 'admin' && (
+              <>
+                <div
+                  className={`nav-item ${activeTab === 'postas' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('postas')}
+                >
+                  <span>🏠</span> Destinos
+                </div>
+                <div
+                  className={`nav-item ${activeTab === 'vehiculos' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('vehiculos')}
+                >
+                  <span>🛡️</span> Vehículos
+                </div>
+                <div
+                  className={`nav-item ${activeTab === 'personal' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('personal')}
+                >
+                  <span>👥</span> Personal Médico
+                </div>
+              </>
+            )}
           </nav>
 
           <div style={{ marginTop: 'auto', padding: '1rem', background: '#f8f9fa', borderRadius: '12px' }}>

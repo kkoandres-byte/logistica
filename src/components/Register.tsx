@@ -108,9 +108,7 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
               onChange={(e) => setFormData({ ...formData, rol: e.target.value as UserRole })}
               disabled={isLoading}
             >
-              <option value="personal">Personal Médico / TENS</option>
-              <option value="conductor">Conductor</option>
-              <option value="coordinador">Coordinador / Jefe de Área</option>
+              <option value="personal">Funcionario</option>
               <option value="admin">Administrador</option>
             </select>
           </div>
