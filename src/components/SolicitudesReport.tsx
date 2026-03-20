@@ -46,21 +46,21 @@ const SolicitudesReport: React.FC = () => {
     const rechazadas = solicitudes.filter(s => s.estado === 'Rechazada');
 
     const renderTable = (list: SolicitudSalida[], title: string, color: string) => (
-        <div className="card" style={{ marginBottom: '2rem' }}>
-            <h3 style={{ color, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div className="card" style={{ marginBottom: '1rem', padding: '1rem' }}>
+            <h3 style={{ fontSize: '1rem', color, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span>{title === 'Aprobadas' ? ' ✅' : ' ❌'}</span> {title} ({list.length})
             </h3>
             <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                         <tr style={{ textAlign: 'left', borderBottom: '2px solid #f1f5f9' }}>
-                            <th style={{ padding: '12px' }}>F. Viaje</th>
-                            <th style={{ padding: '12px' }}>Solicitante</th>
-                            <th style={{ padding: '12px' }}>Tipo</th>
-                            <th style={{ padding: '12px' }}>Destino / Paradas</th>
-                            <th style={{ padding: '12px' }}>Descripción</th>
-                            <th style={{ padding: '12px' }}>Estado Técnico</th>
-                            {isAdmin && <th style={{ padding: '12px' }}>Acciones</th>}
+                            <th style={{ padding: '8px', fontSize: '0.7rem' }}>F. Viaje</th>
+                            <th style={{ padding: '8px', fontSize: '0.7rem' }}>Solicitante</th>
+                            <th style={{ padding: '8px', fontSize: '0.7rem' }}>Tipo</th>
+                            <th style={{ padding: '8px', fontSize: '0.7rem' }}>Destino / Paradas</th>
+                            <th style={{ padding: '8px', fontSize: '0.7rem' }}>Descripción</th>
+                            <th style={{ padding: '8px', fontSize: '0.7rem' }}>Estado Técnico</th>
+                            {isAdmin && <th style={{ padding: '8px', fontSize: '0.7rem' }}>Acciones</th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -68,39 +68,39 @@ const SolicitudesReport: React.FC = () => {
                             const tipo = TIPO_CONFIG[s.tipoSalida];
                             return (
                                 <tr key={s.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                    <td style={{ padding: '12px', fontWeight: 600 }}>{s.fechaViaje.split('-').reverse().join('/')}</td>
-                                    <td style={{ padding: '12px' }}>{s.solicitante}</td>
-                                    <td style={{ padding: '12px' }}>
+                                    <td style={{ padding: '8px', fontWeight: 600, fontSize: '0.8rem' }}>{s.fechaViaje.split('-').reverse().join('/')}</td>
+                                    <td style={{ padding: '8px', fontSize: '0.8rem' }}>{s.solicitante}</td>
+                                    <td style={{ padding: '8px' }}>
                                         <span style={{ 
                                             display: 'inline-flex', alignItems: 'center', gap: '5px',
-                                            padding: '4px 8px', borderRadius: '6px',
-                                            background: tipo?.bg, color: tipo?.color, fontSize: '0.75rem', fontWeight: 600
+                                            padding: '2px 6px', borderRadius: '6px',
+                                            background: tipo?.bg, color: tipo?.color, fontSize: '0.7rem', fontWeight: 600
                                         }}>
                                             {tipo?.icon} {s.tipoSalida}
                                         </span>
                                     </td>
-                                    <td style={{ padding: '12px', fontSize: '0.83rem', color: '#1e293b', fontWeight: 600 }}>
+                                    <td style={{ padding: '8px', fontSize: '0.78rem', color: '#1e293b', fontWeight: 600 }}>
                                         {allPostas.find(p => p.id === s.destinoId)?.nombre || '–'}
                                         {s.paradasIntermediasIds && s.paradasIntermediasIds.length > 0 && (
-                                            <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '2px', fontWeight: 400 }}>
-                                                Paradas: {s.paradasIntermediasIds.map(id => allPostas.find(p => p.id === id)?.nombre).join(', ')}
+                                            <div style={{ fontSize: '0.65rem', color: '#64748b', marginTop: '1px', fontWeight: 400 }}>
+                                                {s.paradasIntermediasIds.map(id => allPostas.find(p => p.id === id)?.nombre).join(', ')}
                                             </div>
                                         )}
                                     </td>
-                                    <td style={{ padding: '12px', fontSize: '0.85rem' }}>{s.descripcion}</td>
-                                    <td style={{ padding: '12px' }}>
+                                    <td style={{ padding: '8px', fontSize: '0.75rem', maxWidth: '300px' }}>{s.descripcion}</td>
+                                    <td style={{ padding: '8px', fontSize: '0.75rem' }}>
                                         {s.rondaId ? 
                                             <span style={{ color: '#059669', fontWeight: 600 }}>✅ Asignada</span> : 
-                                            (s.motivoRechazo ? <span style={{ color: '#991b1b', fontSize: '0.75rem' }}>❌ {s.motivoRechazo}</span> : <span style={{ color: '#94a3b8' }}>–</span>)
+                                            (s.motivoRechazo ? <span style={{ color: '#991b1b', fontSize: '0.65rem' }}>❌ {s.motivoRechazo}</span> : <span style={{ color: '#94a3b8' }}>–</span>)
                                         }
                                     </td>
                                     {isAdmin && (
-                                        <td style={{ padding: '12px' }}>
+                                        <td style={{ padding: '8px' }}>
                                             <button 
                                                 onClick={() => handleDelete(s.id)}
                                                 style={{ 
                                                     border: 'none', background: '#fef2f2', color: '#ef4444', 
-                                                    padding: '6px', borderRadius: '6px', cursor: 'pointer',
+                                                    padding: '4px', borderRadius: '4px', cursor: 'pointer',
                                                     display: 'flex', alignItems: 'center', justifyContent: 'center'
                                                 }}
                                                 title="Eliminar del reporte"
@@ -128,20 +128,20 @@ const SolicitudesReport: React.FC = () => {
     if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Cargando reporte...</div>;
 
     return (
-        <div style={{ padding: '1rem' }}>
-            <div style={{ marginBottom: '2rem' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>Reporte de Estado de Solicitudes</h2>
-                <p style={{ color: '#64748b' }}>Resumen histórico de solicitudes gestionadas</p>
+        <div style={{ padding: '0 0.5rem' }}>
+            <div style={{ marginBottom: '1.25rem' }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b' }}>Reporte de Estado de Solicitudes</h2>
+                <p style={{ fontSize: '0.8rem', color: '#64748b' }}>Resumen histórico de solicitudes gestionadas</p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
-                <div className="card" style={{ background: '#ecfdf5', border: '1px solid #10b981', textAlign: 'center', padding: '1.5rem' }}>
-                    <div style={{ fontSize: '0.875rem', color: '#065f46', fontWeight: 600, textTransform: 'uppercase' }}>Total Aprobadas</div>
-                    <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#065f46' }}>{aprobadas.length}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div className="card" style={{ background: '#ecfdf5', border: '1px solid #10b981', textAlign: 'center', padding: '0.75rem' }}>
+                    <div style={{ fontSize: '0.7rem', color: '#065f46', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.25rem' }}>Total Aprobadas</div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#065f46' }}>{aprobadas.length}</div>
                 </div>
-                <div className="card" style={{ background: '#fef2f2', border: '1px solid #ef4444', textAlign: 'center', padding: '1.5rem' }}>
-                    <div style={{ fontSize: '0.875rem', color: '#991b1b', fontWeight: 600, textTransform: 'uppercase' }}>Total Rechazadas</div>
-                    <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#991b1b' }}>{rechazadas.length}</div>
+                <div className="card" style={{ background: '#fef2f2', border: '1px solid #ef4444', textAlign: 'center', padding: '0.75rem' }}>
+                    <div style={{ fontSize: '0.7rem', color: '#991b1b', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.25rem' }}>Total Rechazadas</div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#991b1b' }}>{rechazadas.length}</div>
                 </div>
             </div>
 
