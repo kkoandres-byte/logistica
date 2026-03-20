@@ -52,6 +52,8 @@ const App: React.FC = () => {
         fecha: s.fechaViaje,
         indicaciones: s.descripcion,
         tipoSalida: s.tipoSalida,
+        postaId: s.destinoId,
+        paradasIntermediasIds: s.paradasIntermediasIds || [],
         pasajerosIds: s.funcionariosIds || [],
         // Pasamos un campo custom para identificar al solicitante
         // @ts-expect-error solicitanteName is a custom property for prefill logic
