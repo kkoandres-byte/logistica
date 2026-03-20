@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getSolicitudesFirebase } from '../services/solicitudesService';
+import { getSolicitudesFirebase, deleteSolicitudFirebase } from '../services/solicitudesService';
 import { getPostasFirebase } from '../services/dataService';
 import type { SolicitudSalida, Posta } from '../data/types';
 import { TIPO_CONFIG } from '../data/config';
@@ -10,21 +10,34 @@ const SolicitudesReport: React.FC = () => {
     const [allPostas, setAllPostas] = useState<Posta[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const loadData = async () => {
+        setLoading(true);
+        const [solicitudesData, postasData] = await Promise.all([
+            getSolicitudesFirebase(),
+            getPostasFirebase()
+        ]);
+        
+        // Ordenar por fecha descendente
+        const sorted = solicitudesData.sort((a, b) => new Date(b.fechaViaje).getTime() - new Date(a.fechaViaje).getTime());
+        setSolicitudes(sorted);
+        setAllPostas(postasData || POSTAS);
+        setLoading(false);
+    };
+
     useEffect(() => {
-        const load = async () => {
-            const [solicitudesData, postasData] = await Promise.all([
-                getSolicitudesFirebase(),
-                getPostasFirebase()
-            ]);
-            
-            // Ordenar por fecha descendente
-            const sorted = solicitudesData.sort((a, b) => new Date(b.fechaViaje).getTime() - new Date(a.fechaViaje).getTime());
-            setSolicitudes(sorted);
-            setAllPostas(postasData || POSTAS);
-            setLoading(false);
-        };
-        load();
+        loadData();
     }, []);
+
+    const handleDelete = async (id: string) => {
+        if (!window.confirm('¿Estás seguro de eliminar este registro del reporte?')) return;
+        try {
+            await deleteSolicitudFirebase(id);
+            await loadData();
+        } catch (error) {
+            console.error('Error al eliminar:', error);
+            alert('Error al eliminar la solicitud');
+        }
+    };
 
     const aprobadas = solicitudes.filter(s => s.estado === 'Aprobada');
     const rechazadas = solicitudes.filter(s => s.estado === 'Rechazada');
@@ -44,6 +57,7 @@ const SolicitudesReport: React.FC = () => {
                             <th style={{ padding: '12px' }}>Destino / Paradas</th>
                             <th style={{ padding: '12px' }}>Descripción</th>
                             <th style={{ padding: '12px' }}>Estado Técnico</th>
+                            <th style={{ padding: '12px' }}>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -77,12 +91,25 @@ const SolicitudesReport: React.FC = () => {
                                             (s.motivoRechazo ? <span style={{ color: '#991b1b', fontSize: '0.75rem' }}>❌ {s.motivoRechazo}</span> : <span style={{ color: '#94a3b8' }}>–</span>)
                                         }
                                     </td>
+                                    <td style={{ padding: '12px' }}>
+                                        <button 
+                                            onClick={() => handleDelete(s.id)}
+                                            style={{ 
+                                                border: 'none', background: '#fef2f2', color: '#ef4444', 
+                                                padding: '6px', borderRadius: '6px', cursor: 'pointer',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                            }}
+                                            title="Eliminar del reporte"
+                                        >
+                                            🗑️
+                                        </button>
+                                    </td>
                                 </tr>
                             );
                         })}
                         {list.length === 0 && (
                             <tr>
-                                <td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+                                <td colSpan={7} style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
                                     No hay solicitudes en esta categoría
                                 </td>
                             </tr>
