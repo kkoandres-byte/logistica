@@ -211,101 +211,98 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                     padding: '0.875rem 1.25rem', borderRadius: '10px',
                     background: toast.type === 'success' ? '#d1fae5' : '#fee2e2',
                     color: toast.type === 'success' ? '#065f46' : '#991b1b',
-                    border: `1px solid ${toast.type === 'success' ? '#6ee7b7' : '#fca5a5'}`,
-                    fontWeight: 600, fontSize: '0.875rem', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                    display: 'flex', alignItems: 'center', gap: '0.5rem',
+                    fontWeight: 600, fontSize: '0.875rem',
+                    borderLeft: `5px solid ${toast.type === 'success' ? '#10b981' : '#ef4444'}`
                 }}>
                     {toast.type === 'success' ? '✅' : '❌'} {toast.msg}
                 </div>
             )}
 
-            {/* Stats */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
-                {[
-                    { label: 'Total',     value: stats.total,     color: '#1d4ed8', bg: '#dbeafe' },
-                    { label: 'Pendientes',value: stats.pendiente, color: '#92400e', bg: '#fef3c7' },
-                    { label: 'Aprobadas', value: stats.aprobada,  color: '#065f46', bg: '#d1fae5' },
-                    { label: 'Rechazadas',value: stats.rechazada, color: '#991b1b', bg: '#fee2e2' },
-                ].map(s => (
-                    <div key={s.label} className="card" style={{ background: s.bg, border: `1px solid ${s.color}22` }}>
-                        <div style={{ fontSize: '1.75rem', fontWeight: 800, color: s.color }}>{s.value}</div>
-                        <div style={{ fontSize: '0.8rem', color: s.color, fontWeight: 600 }}>{s.label}</div>
-                    </div>
-                ))}
-            </div>
-
-            {/* Toolbar */}
-            <div className="card" style={{ marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                    <button className="btn btn-primary" onClick={openNew} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                        ＋ Nueva Solicitud
-                    </button>
-
-                    {isAdmin && (
-                        <>
-                            <select
-                                value={filterEstado}
-                                onChange={e => setFilterEstado(e.target.value as EstadoSolicitud | 'Todas')}
-                                style={{ flex: '0 0 auto', width: 'auto', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem' }}
-                            >
-                                <option value="Todas">Todos los estados</option>
-                                <option value="Pendiente">Pendiente</option>
-                                <option value="Aprobada">Aprobada</option>
-                                <option value="Rechazada">Rechazada</option>
-                            </select>
-
-                            <select
-                                value={filterTipo}
-                                onChange={e => setFilterTipo(e.target.value as TipoSolicitud | 'Todos')}
-                                style={{ flex: '0 0 auto', width: 'auto', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.875rem' }}
-                            >
-                                <option value="Todos">Todos los tipos</option>
-                                {TIPOS.map(t => <option key={t} value={t}>{t}</option>)}
-                            </select>
-                        </>
-                    )}
-
-                    <div style={{ marginLeft: 'auto', fontSize: '0.85rem', color: '#64748b' }}>
-                        {filtered.length} solicitud{filtered.length !== 1 ? 'es' : ''}
-                    </div>
+            {/* Header / Stats */}
+            <div className="dashboard-grid no-print" style={{ marginBottom: '1.5rem' }}>
+                <div className="card stats-card" style={{ borderLeft: '4px solid #3b82f6' }}>
+                    <div className="stats-value" style={{ color: '#3b82f6' }}>{stats.total}</div>
+                    <div className="stats-label">Total</div>
+                </div>
+                <div className="card stats-card" style={{ borderLeft: '4px solid #f59e0b' }}>
+                    <div className="stats-value" style={{ color: '#f59e0b' }}>{stats.pendiente}</div>
+                    <div className="stats-label">Pendientes</div>
+                </div>
+                <div className="card stats-card" style={{ borderLeft: '4px solid #10b981' }}>
+                    <div className="stats-value" style={{ color: '#10b981' }}>{stats.aprobada}</div>
+                    <div className="stats-label">Aprobadas</div>
+                </div>
+                <div className="card stats-card" style={{ borderLeft: '4px solid #ef4444' }}>
+                    <div className="stats-value" style={{ color: '#ef4444' }}>{stats.rechazada}</div>
+                    <div className="stats-label">Rechazadas</div>
                 </div>
             </div>
 
-            {/* Colour legend */}
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-                {TIPOS.map(t => {
-                    const cfg = TIPO_CONFIG[t];
-                    return (
-                        <span key={t} style={{
-                            display: 'flex', alignItems: 'center', gap: '6px',
-                            padding: '4px 10px', borderRadius: '999px',
-                            background: cfg.bg, color: cfg.color, fontSize: '0.78rem', fontWeight: 600
-                        }}>
-                            {cfg.icon} {t}
-                        </span>
-                    );
-                })}
-            </div>
+            {/* Main Content */}
+            <div className="card no-print">
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <button className="btn btn-primary" onClick={openNew}>+ Nueva Solicitud</button>
+                        <select
+                            value={filterEstado}
+                            onChange={e => setFilterEstado(e.target.value as any)}
+                            style={{ padding: '8px 16px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '0.85rem' }}
+                        >
+                            <option value="Todas">Todos los estados</option>
+                            <option value="Pendiente">Pendientes</option>
+                            <option value="Aprobada">Aprobadas</option>
+                            <option value="Rechazada">Rechazadas</option>
+                        </select>
+                        <select
+                            value={filterTipo}
+                            onChange={e => setFilterTipo(e.target.value as any)}
+                            style={{ padding: '8px 16px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '0.85rem' }}
+                        >
+                            <option value="Todos">Todos los tipos</option>
+                            {TIPOS.map(t => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                    </div>
+                    <div style={{ fontSize: '0.82rem', color: '#64748b', alignSelf: 'center' }}>
+                        {filtered.length} solicitud{filtered.length !== 1 ? 'es' : ''}
+                    </div>
+                </div>
 
-            {/* Table */}
-            <div className="card" style={{ overflowX: 'auto' }}>
+                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+                    {TIPOS.map(t => (
+                        <span key={t} style={{
+                            fontSize: '0.72rem', fontWeight: 700,
+                            padding: '4px 12px', borderRadius: '999px',
+                            background: TIPO_CONFIG[t].bg, color: TIPO_CONFIG[t].color,
+                            opacity: filterTipo === 'Todos' || filterTipo === t ? 1 : 0.4
+                        }}>
+                            {TIPO_CONFIG[t].icon} {t}
+                        </span>
+                    ))}
+                </div>
+
                 {loading ? (
-                    <p style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>Cargando...</p>
+                    <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>Cargando solicitudes...</div>
                 ) : filtered.length === 0 ? (
-                    <p style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>No hay solicitudes</p>
+                    <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
+                        <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🎫</p>
+                        <p>No hay solicitudes que mostrar</p>
+                    </div>
                 ) : (
-                    <table>
+                    <table style={{ minWidth: '1000px' }}>
                         <thead>
                             <tr>
-                                <th>F. Solicitud</th>
-                                <th>F. Viaje</th>
-                                <th>Solicitante</th>
-                                <th>Acompañantes</th>
-                                <th>Tipo</th>
-                                <th>Destino / Paradas</th>
-                                <th>Descripción</th>
-                                <th>Estado</th>
-                                {isAdmin && <th>Estado de solicitud</th>}
-                                <th>Acciones</th>
+                                <th>F. SOLICITUD</th>
+                                <th>F. VIAJE</th>
+                                <th>SOLICITANTE</th>
+                                <th>ACOMPAÑANTES</th>
+                                <th>TIPO</th>
+                                <th>DESTINO / PARADAS</th>
+                                <th>DESCRIPCIÓN</th>
+                                <th>ESTADO</th>
+                                <th>ESTADO DE SOLICITUD</th>
+                                <th className="col-actions">ACCIONES</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -436,13 +433,13 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                     position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
                     zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
                 }}>
-                    <div className="card" style={{ width: '100%', maxWidth: '560px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+                    <div className="card" style={{ width: '100%', maxWidth: '800px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
                         <h3 className="card-title" style={{ marginBottom: '1.5rem' }}>
                             {editing ? '✏️ Editar Solicitud' : '➕ Nueva Solicitud de Salida'}
                         </h3>
                         <form onSubmit={handleSubmit}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                <div className="form-group">
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
                                     <label>Solicitante *</label>
                                     <input
                                         type="text"
@@ -457,7 +454,7 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                     />
                                 </div>
 
-                                <div className="form-group">
+                                <div className="form-group" style={{ marginBottom: 0 }}>
                                     <label>Fecha para el viaje *</label>
                                     <input
                                         type="date"
@@ -466,26 +463,19 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                         required
                                     />
                                 </div>
-                            </div>
 
-                            <div className="form-group">
-                                <label>Tipo de Salida *</label>
-                                <select
-                                    value={form.tipoSalida}
-                                    onChange={e => setForm({ ...form, tipoSalida: e.target.value as TipoSolicitud })}
-                                >
-                                    {TIPOS.map(t => (
-                                        <option key={t} value={t}>{TIPO_CONFIG[t].icon} {t}</option>
-                                    ))}
-                                </select>
-                                <div style={{
-                                    marginTop: '6px', padding: '6px 12px', borderRadius: '8px',
-                                    background: TIPO_CONFIG[form.tipoSalida].bg,
-                                    color: TIPO_CONFIG[form.tipoSalida].color,
-                                    fontSize: '0.78rem', fontWeight: 600, display: 'inline-block'
-                                }}>
-                                    {TIPO_CONFIG[form.tipoSalida].icon} {form.tipoSalida}
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label>Tipo de Salida *</label>
+                                    <select
+                                        value={form.tipoSalida}
+                                        onChange={e => setForm({ ...form, tipoSalida: e.target.value as TipoSolicitud })}
+                                    >
+                                        {TIPOS.map(t => (
+                                            <option key={t} value={t}>{TIPO_CONFIG[t].icon} {t}</option>
+                                        ))}
+                                    </select>
                                 </div>
+                            </div>
 
                                 {(form.tipoSalida === 'Visitas Domiciliarias' || form.tipoSalida === 'Ronda Rural') && (
                                     <div style={{ marginTop: '1rem', padding: '1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
@@ -585,7 +575,7 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                                     Ningún acompañante seleccionado
                                                 </div>
                                             )}
-                                                    </div>
+                                        </div>
                                                 </>
                                             );
                                         })()}
@@ -694,9 +684,8 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                         </div>
                                     </div>
                                 )}
-                            </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem', marginTop: '1rem' }}>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                     <label>Destino *</label>
                                     <select
