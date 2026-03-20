@@ -84,7 +84,7 @@ const App: React.FC = () => {
     <AuthGuard>
       <div className="app-container">
         <aside className="sidebar">
-          <div style={{ padding: '0.5rem 0 1.5rem 0', borderBottom: '1px solid #e2e8f0', marginBottom: '1.5rem' }}>
+          <div style={{ padding: '0.5rem 0 0.25rem 0', borderBottom: '1px solid #e2e8f0', marginBottom: '0.5rem' }}>
             <UserMenu />
           </div>
 
