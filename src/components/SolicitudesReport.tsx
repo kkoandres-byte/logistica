@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { getSolicitudesFirebase } from '../services/solicitudesService';
-import type { SolicitudSalida } from '../data/types';
+import { getPostasFirebase } from '../services/dataService';
+import type { SolicitudSalida, Posta } from '../data/types';
 import { TIPO_CONFIG } from '../data/config';
+import { POSTAS } from '../data/mockData';
 
 const SolicitudesReport: React.FC = () => {
     const [solicitudes, setSolicitudes] = useState<SolicitudSalida[]>([]);
+    const [allPostas, setAllPostas] = useState<Posta[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const load = async () => {
-            const data = await getSolicitudesFirebase();
+            const [solicitudesData, postasData] = await Promise.all([
+                getSolicitudesFirebase(),
+                getPostasFirebase()
+            ]);
+            
             // Ordenar por fecha descendente
-            const sorted = data.sort((a, b) => new Date(b.fechaViaje).getTime() - new Date(a.fechaViaje).getTime());
+            const sorted = solicitudesData.sort((a, b) => new Date(b.fechaViaje).getTime() - new Date(a.fechaViaje).getTime());
             setSolicitudes(sorted);
+            setAllPostas(postasData || POSTAS);
             setLoading(false);
         };
         load();
@@ -55,10 +63,10 @@ const SolicitudesReport: React.FC = () => {
                                         </span>
                                     </td>
                                     <td style={{ padding: '12px', fontSize: '0.83rem', color: '#1e293b', fontWeight: 600 }}>
-                                        {s.destino || '–'}
-                                        {s.paradasIntermedias && (
+                                        {allPostas.find(p => p.id === s.destinoId)?.nombre || '–'}
+                                        {s.paradasIntermediasIds && s.paradasIntermediasIds.length > 0 && (
                                             <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '2px', fontWeight: 400 }}>
-                                                Paradas: {s.paradasIntermedias}
+                                                Paradas: {s.paradasIntermediasIds.map(id => allPostas.find(p => p.id === id)?.nombre).join(', ')}
                                             </div>
                                         )}
                                     </td>

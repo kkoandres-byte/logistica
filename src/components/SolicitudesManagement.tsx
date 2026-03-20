@@ -6,8 +6,9 @@ import {
     updateSolicitudFirebase,
     deleteSolicitudFirebase
 } from '../services/solicitudesService';
-import { getPersonalFirebase } from '../services/dataService';
-import type { SolicitudSalida, TipoSolicitud, EstadoSolicitud, Personal } from '../data/types';
+import { getPersonalFirebase, getPostasFirebase } from '../services/dataService';
+import type { SolicitudSalida, TipoSolicitud, EstadoSolicitud, Personal, Posta } from '../data/types';
+import { POSTAS } from '../data/mockData';
 
 import { TIPO_CONFIG, ESTADO_CONFIG } from '../data/config';
 
@@ -23,8 +24,8 @@ const TIPOS: TipoSolicitud[] = [
 const EMPTY_FORM = {
     solicitante: '',
     tipoSalida: 'Visitas Domiciliarias' as TipoSolicitud,
-    destino: '',
-    paradasIntermedias: '',
+    destinoId: '',
+    paradasIntermediasIds: [] as string[],
     descripcion: '',
     estado: 'Pendiente' as EstadoSolicitud,
     funcionariosIds: [] as string[],
@@ -40,6 +41,7 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
     const isAdmin = usuario?.rol === 'admin';
     const [solicitudes, setSolicitudes] = useState<SolicitudSalida[]>([]);
     const [allPersonal, setAllPersonal] = useState<Personal[]>([]);
+    const [allPostas, setAllPostas] = useState<Posta[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [editing, setEditing] = useState<SolicitudSalida | null>(null);
@@ -57,15 +59,18 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
 
     const load = async () => {
         setLoading(true);
-        const [solicitudesData, personalData] = await Promise.all([
+
+        const [solicitudesData, personalData, postasData] = await Promise.all([
             getSolicitudesFirebase(),
-            getPersonalFirebase()
+            getPersonalFirebase(),
+            getPostasFirebase()
         ]);
         
         // Sort newest first
         solicitudesData.sort((a, b) => b.fechaSolicitud.localeCompare(a.fechaSolicitud));
         setSolicitudes(solicitudesData);
         setAllPersonal(personalData);
+        setAllPostas(postasData && postasData.length > 0 ? postasData : POSTAS);
         setLoading(false);
     };
 
@@ -90,8 +95,8 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
         setForm({
             solicitante: s.solicitante,
             tipoSalida: s.tipoSalida,
-            destino: s.destino || '',
-            paradasIntermedias: s.paradasIntermedias || '',
+            destinoId: s.destinoId || '',
+            paradasIntermediasIds: s.paradasIntermediasIds || [],
             descripcion: s.descripcion,
             estado: s.estado,
             funcionariosIds: s.funcionariosIds || [],
@@ -102,7 +107,7 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!form.solicitante.trim() || !form.destino.trim() || !form.descripcion.trim()) {
+        if (!form.solicitante.trim() || !form.destinoId || !form.descripcion.trim()) {
             showToast('Complete todos los campos requeridos', 'error');
             return;
         }
@@ -334,10 +339,10 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                             </span>
                                         </td>
                                         <td style={{ fontSize: '0.83rem', color: '#1e293b', fontWeight: 600 }}>
-                                            {s.destino || '–'}
-                                            {s.paradasIntermedias && (
+                                            {allPostas.find(p => p.id === s.destinoId)?.nombre || '–'}
+                                            {s.paradasIntermediasIds && s.paradasIntermediasIds.length > 0 && (
                                                 <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '2px', fontWeight: 400 }}>
-                                                    Paradas: {s.paradasIntermedias}
+                                                    Paradas: {s.paradasIntermediasIds.map(id => allPostas.find(p => p.id === id)?.nombre).join(', ')}
                                                 </div>
                                             )}
                                         </td>
@@ -567,24 +572,58 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                     <label>Destino *</label>
-                                    <input
-                                        type="text"
-                                        value={form.destino}
-                                        onChange={e => setForm({ ...form, destino: e.target.value })}
-                                        placeholder="Lugar de destino..."
+                                    <select
+                                        value={form.destinoId}
+                                        onChange={e => setForm({ 
+                                            ...form, 
+                                            destinoId: e.target.value,
+                                            paradasIntermediasIds: form.paradasIntermediasIds.filter(id => id !== e.target.value)
+                                        })}
                                         required
                                         style={{ width: '100%', padding: '0.625rem 0.75rem', fontSize: '0.875rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}
-                                    />
+                                    >
+                                        <option value="">Seleccionar destino...</option>
+                                        {allPostas.map(p => (
+                                            <option key={p.id} value={p.id}>{p.nombre}</option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
-                                    <label>Paradas Intermedias</label>
-                                    <input
-                                        type="text"
-                                        value={form.paradasIntermedias}
-                                        onChange={e => setForm({ ...form, paradasIntermedias: e.target.value })}
-                                        placeholder="Ej: Posta El Manzano, etc."
+                                    <label>Paradas Intermedias (Máx 3)</label>
+                                    <select
+                                        value=""
+                                        onChange={e => {
+                                            const id = e.target.value;
+                                            if (id && !form.paradasIntermediasIds.includes(id) && form.paradasIntermediasIds.length < 3) {
+                                                setForm({ ...form, paradasIntermediasIds: [...form.paradasIntermediasIds, id] });
+                                            }
+                                        }}
+                                        disabled={form.paradasIntermediasIds.length >= 3}
                                         style={{ width: '100%', padding: '0.625rem 0.75rem', fontSize: '0.875rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}
-                                    />
+                                    >
+                                        <option value="">Añadir parada...</option>
+                                        {allPostas
+                                            .filter(p => p.id !== form.destinoId && !form.paradasIntermediasIds.includes(p.id))
+                                            .map(p => (
+                                                <option key={p.id} value={p.id}>{p.nombre}</option>
+                                            ))
+                                        }
+                                    </select>
+                                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '8px' }}>
+                                        {form.paradasIntermediasIds.map(id => (
+                                            <span key={id} style={{ 
+                                                fontSize: '0.7rem', background: '#f1f5f9', padding: '2px 8px', 
+                                                borderRadius: '6px', color: '#475569', display: 'flex', alignItems: 'center', gap: '4px' 
+                                            }}>
+                                                {allPostas.find(p => p.id === id)?.nombre}
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => setForm({ ...form, paradasIntermediasIds: form.paradasIntermediasIds.filter(x => x !== id) })}
+                                                    style={{ border: 'none', background: 'none', color: '#ef4444', padding: 0, cursor: 'pointer', fontWeight: 'bold' }}
+                                                >✕</button>
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
