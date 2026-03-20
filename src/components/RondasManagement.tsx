@@ -142,6 +142,8 @@ const RondasManagement: React.FC<RondasManagementProps> = ({
                     fecha: prefillData.fecha || prev.fecha,
                     indicaciones: prefillData.indicaciones || prev.indicaciones,
                     tipoSalida: prefillData.tipoSalida || prev.tipoSalida,
+                    postaId: prefillData.postaId || prev.postaId,
+                    paradasIntermediasIds: prefillData.paradasIntermediasIds || prev.paradasIntermediasIds,
                     selectedPersonal: passengers,
                     solicitudesIds: prefillData.solicitudesIds || prev.solicitudesIds
                 }));
