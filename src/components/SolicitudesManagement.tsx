@@ -548,30 +548,37 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                             </div>
                                         )}
 
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                        <div style={{ 
+                                            display: 'grid', 
+                                            gridTemplateColumns: '1fr 1fr', 
+                                            gap: '0.5rem' 
+                                        }}>
                                             {form.funcionariosIds.map(fid => {
                                                 const p = allPersonal.find(x => x.id === fid);
                                                 if (!p) return null;
                                                 return (
                                                     <div key={fid} style={{
                                                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                                        padding: '0.5rem 0.75rem', background: 'white', borderRadius: '8px',
-                                                        border: '1px solid #e2e8f0', fontSize: '0.85rem'
+                                                        padding: '0.4rem 0.75rem', background: 'white', borderRadius: '8px',
+                                                        border: '1px solid #e2e8f0', fontSize: '0.8rem', height: '36px'
                                                     }}>
-                                                        <span>{p.nombre}</span>
+                                                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                            {p.nombre}
+                                                        </span>
                                                         <button
                                                             type="button"
                                                             onClick={() => setForm({ ...form, funcionariosIds: form.funcionariosIds.filter(x => x !== fid) })}
                                                             style={{
                                                                 background: 'none', border: 'none', color: '#ef4444',
-                                                                cursor: 'pointer', padding: '2px 6px', fontSize: '1rem'
+                                                                cursor: 'pointer', padding: '0 4px', fontSize: '1rem',
+                                                                lineHeight: 1
                                                             }}
                                                         >✕</button>
                                                     </div>
                                                 );
                                             })}
                                             {form.funcionariosIds.length === 0 && (
-                                                <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', padding: '0.5rem' }}>
+                                                <div style={{ gridColumn: 'span 2', fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', padding: '0.5rem' }}>
                                                     Ningún acompañante seleccionado
                                                 </div>
                                             )}
