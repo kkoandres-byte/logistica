@@ -87,7 +87,21 @@ const SolicitudesReport: React.FC = () => {
                                             </div>
                                         )}
                                     </td>
-                                    <td style={{ padding: '8px', fontSize: '0.75rem', maxWidth: '300px' }}>{s.descripcion}</td>
+                                    <td style={{ padding: '8px', fontSize: '0.75rem', maxWidth: '350px', whiteSpace: 'pre-line' }}>
+                                        {s.descripcion.split(/(\n\d+\.\s)/).map((part, i, arr) => {
+                                            if (part.match(/^\n\d+\.\s/)) return null; 
+                                            const fullPart = (i > 0 && arr[i-1].match(/^\n\d+\.\s/)) ? arr[i-1].trim() + " " + part : part;
+                                            if (i > 0 && arr[i-1].match(/^\n\d+\.\s/)) {
+                                                const patientIndex = parseInt(arr[i-1].match(/\d+/)?.[0] || "1");
+                                                const color = patientIndex % 2 === 0 ? '#1e40af' : '#000000';
+                                                return <div key={i} style={{ color, marginBottom: '4px' }}>{fullPart}</div>;
+                                            }
+                                            if (i === 0 && part.match(/^\d+\.\s/)) {
+                                                return <div key={i} style={{ color: '#000000', marginBottom: '4px' }}>{part}</div>;
+                                            }
+                                            return <span key={i}>{part}</span>;
+                                        })}
+                                    </td>
                                     <td style={{ padding: '8px', fontSize: '0.75rem' }}>
                                         {s.rondaId ? 
                                             <span style={{ color: '#059669', fontWeight: 600 }}>✅ Asignada</span> : 
