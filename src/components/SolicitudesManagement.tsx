@@ -60,6 +60,13 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
         setTimeout(() => setToast(null), 3000);
     };
 
+    const formatDescByPatients = (pIds: string[]) => {
+        const selected = allPacientes.filter(px => pIds.includes(px.id));
+        return selected.map((px, idx) => 
+            `${idx + 1}. ${px.nombre} (${px.rut})\r\n   DEP: ${px.dependencia}\r\n   DIR: ${px.calle} ${px.numeroDomicilio}\r\n   TEL: ${px.telefonos.join(' / ')}`
+        ).join('\r\n\r\n');
+    };
+
     const load = async () => {
         setLoading(true);
 
@@ -318,17 +325,21 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                         </td>
                                         <td>
                                             {s.funcionariosIds && s.funcionariosIds.length > 0 ? (
-                                                <span style={{ 
-                                                    fontSize: '0.7rem', 
-                                                    background: '#f1f5f9', 
-                                                    padding: '2px 8px', 
-                                                    borderRadius: '6px',
-                                                    color: '#475569',
-                                                    fontWeight: 600,
-                                                    whiteSpace: 'nowrap'
-                                                }}>
-                                                    👤 {s.funcionariosIds.length} funcionario{s.funcionariosIds.length > 1 ? 's' : ''}
-                                                </span>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                    {s.funcionariosIds.map(fid => {
+                                                        const pf = allPersonal.find(x => x.id === fid);
+                                                        return (
+                                                            <span key={fid} style={{ 
+                                                                fontSize: '0.72rem', 
+                                                                color: '#475569',
+                                                                fontWeight: 600,
+                                                                whiteSpace: 'nowrap'
+                                                            }}>
+                                                                👤 {pf?.nombre || '–'}
+                                                            </span>
+                                                        );
+                                                    })}
+                                                </div>
                                             ) : (
                                                 <span style={{ color: '#cbd5e1', fontSize: '0.75rem' }}>Solo</span>
                                             )}
@@ -351,7 +362,7 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                                 </div>
                                             )}
                                         </td>
-                                        <td style={{ maxWidth: '200px', fontSize: '0.83rem', color: '#475569' }}>
+                                        <td style={{ maxWidth: '300px', fontSize: '0.8rem', color: '#475569', whiteSpace: 'pre-wrap', lineHeight: '1.4' }}>
                                             {s.descripcion}
                                         </td>
                                         <td>
@@ -619,17 +630,10 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                                                     key={p.id} 
                                                                     onClick={() => {
                                                                         const newPacientesIds = [...form.pacientesIds, p.id];
-                                                                        
-                                                                        // Update description automatically
-                                                                        const selectedPacientes = allPacientes.filter(px => newPacientesIds.includes(px.id));
-                                                                        const newDesc = selectedPacientes.map((px, idx) => 
-                                                                            `${idx + 1}. ${px.nombre} (${px.rut}) - DEP: ${px.dependencia}\r\nDIR: ${px.calle} ${px.numeroDomicilio}\r\nTEL: ${px.telefonos.join(' / ')}`
-                                                                        ).join('\r\n\r\n');
-
                                                                         setForm({ 
                                                                             ...form, 
                                                                             pacientesIds: newPacientesIds,
-                                                                            descripcion: newDesc
+                                                                            descripcion: formatDescByPatients(newPacientesIds)
                                                                         });
                                                                         setSearchPaciente('');
                                                                     }}
@@ -668,15 +672,10 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                                             type="button"
                                                             onClick={() => {
                                                                 const newPacientesIds = form.pacientesIds.filter(x => x !== pid);
-                                                                const selectedPacientes = allPacientes.filter(px => newPacientesIds.includes(px.id));
-                                                                const newDesc = selectedPacientes.map((px, idx) => 
-                                                                    `${idx + 1}. ${px.nombre} (${px.rut}) - DEP: ${px.dependencia}\r\nDIR: ${px.calle} ${px.numeroDomicilio}\r\nTEL: ${px.telefonos.join(' / ')}`
-                                                                ).join('\r\n\r\n');
-                                                                
                                                                 setForm({ 
                                                                     ...form, 
                                                                     pacientesIds: newPacientesIds,
-                                                                    descripcion: newDesc
+                                                                    descripcion: formatDescByPatients(newPacientesIds)
                                                                 });
                                                             }}
                                                             style={{
