@@ -477,10 +477,10 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                 </div>
                             </div>
 
-                                {(form.tipoSalida === 'Visitas Domiciliarias' || form.tipoSalida === 'Ronda Rural') && (
+                                {(form.tipoSalida === 'Visitas Domiciliarias' || form.tipoSalida === 'Ronda Rural' || form.tipoSalida === 'Procedimiento en Domicilio') && (
                                     <div style={{ marginTop: '1rem', padding: '1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                                         {(() => {
-                                            const maxPax = form.tipoSalida === 'Ronda Rural' ? 12 : 4;
+                                            const maxPax = form.tipoSalida === 'Ronda Rural' ? 12 : (form.tipoSalida === 'Procedimiento en Domicilio' ? 2 : 4);
                                             return (
                                                 <>
                                                     <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '0.5rem' }}>
@@ -589,111 +589,119 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                     </div>
                                 )}
 
-                                {form.tipoSalida === 'Visitas Domiciliarias' && (
+                                {(form.tipoSalida === 'Visitas Domiciliarias' || form.tipoSalida === 'Procedimiento en Domicilio') && (
                                     <div style={{ marginTop: '1rem', padding: '1rem', background: '#f0f9ff', borderRadius: '12px', border: '1px solid #bae6fd' }}>
-                                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0369a1', display: 'block', marginBottom: '0.5rem' }}>
-                                            Pacientes a Visitar ({form.pacientesIds.length}/8)
-                                        </label>
+                                        {(() => {
+                                            const isProc = form.tipoSalida === 'Procedimiento en Domicilio';
+                                            const maxPatients = isProc ? 15 : 8;
+                                            return (
+                                                <>
+                                                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0369a1', display: 'block', marginBottom: '0.5rem' }}>
+                                                        Pacientes a Visitar ({form.pacientesIds.length}/{maxPatients})
+                                                    </label>
 
-                                        {form.pacientesIds.length < 8 && (
-                                            <div style={{ position: 'relative', marginBottom: '0.75rem' }}>
-                                                <input
-                                                    type="text"
-                                                    value={searchPaciente}
-                                                    onChange={e => setSearchPaciente(e.target.value)}
-                                                    placeholder="🔍 Buscar paciente por nombre o RUT..."
-                                                    style={{ 
-                                                        width: '100%', padding: '0.625rem 0.75rem', 
-                                                        fontSize: '0.875rem', border: '1px solid #bae6fd', 
-                                                        borderRadius: '8px', background: 'white' 
-                                                    }}
-                                                />
-                                                {searchPaciente.trim() !== '' && (
-                                                    <div style={{
-                                                        position: 'absolute', top: '100%', left: 0, right: 0, 
-                                                        background: 'white', border: '1px solid #bae6fd', 
-                                                        borderRadius: '8px', marginTop: '4px', zIndex: 11,
-                                                        maxHeight: '200px', overflowY: 'auto', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
-                                                    }}>
-                                                        {allPacientes
-                                                            .filter(p => !form.pacientesIds.includes(p.id))
-                                                            .filter(p => 
-                                                                p.nombre.toLowerCase().includes(searchPaciente.toLowerCase()) || 
-                                                                p.rut.toLowerCase().includes(searchPaciente.toLowerCase())
-                                                            )
-                                                            .slice(0, 10)
-                                                            .map(p => (
-                                                                <div 
-                                                                    key={p.id} 
-                                                                    onClick={() => {
-                                                                        const newPacientesIds = [...form.pacientesIds, p.id];
-                                                                        setForm({ 
-                                                                            ...form, 
-                                                                            pacientesIds: newPacientesIds,
-                                                                            descripcion: formatDescByPatients(newPacientesIds)
-                                                                        });
-                                                                        setSearchPaciente('');
-                                                                    }}
-                                                                    style={{
-                                                                        padding: '0.625rem 1rem', cursor: 'pointer',
-                                                                        display: 'flex', flexDirection: 'column',
-                                                                        borderBottom: '1px solid #f1f5f9'
-                                                                    }}
-                                                                    className="search-item-hover"
-                                                                >
-                                                                    <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{p.nombre}</span>
-                                                                    <span style={{ fontSize: '0.75rem', color: '#64748b' }}>{p.rut} - {p.dependencia}</span>
+                                                    {form.pacientesIds.length < maxPatients && (
+                                                        <div style={{ position: 'relative', marginBottom: '0.75rem' }}>
+                                                            <input
+                                                                type="text"
+                                                                value={searchPaciente}
+                                                                onChange={e => setSearchPaciente(e.target.value)}
+                                                                placeholder="🔍 Buscar paciente por nombre o RUT..."
+                                                                style={{ 
+                                                                    width: '100%', padding: '0.625rem 0.75rem', 
+                                                                    fontSize: '0.875rem', border: '1px solid #bae6fd', 
+                                                                    borderRadius: '8px', background: 'white' 
+                                                                }}
+                                                            />
+                                                            {searchPaciente.trim() !== '' && (
+                                                                <div style={{
+                                                                    position: 'absolute', top: '100%', left: 0, right: 0, 
+                                                                    background: 'white', border: '1px solid #bae6fd', 
+                                                                    borderRadius: '8px', marginTop: '4px', zIndex: 11,
+                                                                    maxHeight: '200px', overflowY: 'auto', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
+                                                                }}>
+                                                                    {allPacientes
+                                                                        .filter(p => !form.pacientesIds.includes(p.id))
+                                                                        .filter(p => 
+                                                                            p.nombre.toLowerCase().includes(searchPaciente.toLowerCase()) || 
+                                                                            p.rut.toLowerCase().includes(searchPaciente.toLowerCase())
+                                                                        )
+                                                                        .slice(0, 10)
+                                                                        .map(p => (
+                                                                            <div 
+                                                                                key={p.id} 
+                                                                                onClick={() => {
+                                                                                    const newPacientesIds = [...form.pacientesIds, p.id];
+                                                                                    setForm({ 
+                                                                                        ...form, 
+                                                                                        pacientesIds: newPacientesIds,
+                                                                                        descripcion: formatDescByPatients(newPacientesIds)
+                                                                                    });
+                                                                                    setSearchPaciente('');
+                                                                                }}
+                                                                                style={{
+                                                                                    padding: '0.625rem 1rem', cursor: 'pointer',
+                                                                                    display: 'flex', flexDirection: 'column',
+                                                                                    borderBottom: '1px solid #f1f5f9'
+                                                                                }}
+                                                                                className="search-item-hover"
+                                                                            >
+                                                                                <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{p.nombre}</span>
+                                                                                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>{p.rut} - {p.dependencia}</span>
+                                                                            </div>
+                                                                        ))
+                                                                    }
                                                                 </div>
-                                                            ))
-                                                        }
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        <div style={{ 
-                                            display: 'grid', 
-                                            gridTemplateColumns: '1fr 1fr', 
-                                            gap: '0.5rem' 
-                                        }}>
-                                            {form.pacientesIds.map(pid => {
-                                                const p = allPacientes.find(x => x.id === pid);
-                                                if (!p) return null;
-                                                return (
-                                                    <div key={pid} style={{
-                                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                                        padding: '0.4rem 0.75rem', background: 'white', borderRadius: '8px',
-                                                        border: '1px solid #bae6fd', fontSize: '0.78rem'
-                                                    }}>
-                                                        <div style={{ overflow: 'hidden' }}>
-                                                            <div style={{ fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.nombre}</div>
-                                                            <div style={{ fontSize: '0.65rem', color: '#64748b', whiteSpace: 'nowrap' }}>{p.rut} • {p.telefonos[0] || 'Sin Tel'}</div>
+                                                            )}
                                                         </div>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                const newPacientesIds = form.pacientesIds.filter(x => x !== pid);
-                                                                setForm({ 
-                                                                    ...form, 
-                                                                    pacientesIds: newPacientesIds,
-                                                                    descripcion: formatDescByPatients(newPacientesIds)
-                                                                });
-                                                            }}
-                                                            style={{
-                                                                background: 'none', border: 'none', color: '#ef4444',
-                                                                cursor: 'pointer', padding: '0 4px', fontSize: '1rem',
-                                                                marginLeft: '4px'
-                                                            }}
-                                                        >✕</button>
+                                                    )}
+
+                                                    <div style={{ 
+                                                        display: 'grid', 
+                                                        gridTemplateColumns: isProc ? '1fr 1fr 1fr' : '1fr 1fr', 
+                                                        gap: '0.5rem' 
+                                                    }}>
+                                                        {form.pacientesIds.map(pid => {
+                                                            const p = allPacientes.find(x => x.id === pid);
+                                                            if (!p) return null;
+                                                            return (
+                                                                <div key={pid} style={{
+                                                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                                                    padding: '0.4rem 0.75rem', background: 'white', borderRadius: '8px',
+                                                                    border: '1px solid #bae6fd', fontSize: isProc ? '0.7rem' : '0.78rem'
+                                                                }}>
+                                                                    <div style={{ overflow: 'hidden' }}>
+                                                                        <div style={{ fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.nombre}</div>
+                                                                        <div style={{ fontSize: '0.6rem', color: '#64748b', whiteSpace: 'nowrap' }}>{p.rut} • {p.telefonos[0] || 'Sin Tel'}</div>
+                                                                    </div>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            const newPacientesIds = form.pacientesIds.filter(x => x !== pid);
+                                                                            setForm({ 
+                                                                                ...form, 
+                                                                                pacientesIds: newPacientesIds,
+                                                                                descripcion: formatDescByPatients(newPacientesIds)
+                                                                            });
+                                                                        }}
+                                                                        style={{
+                                                                            background: 'none', border: 'none', color: '#ef4444',
+                                                                            cursor: 'pointer', padding: '0 4px', fontSize: '1rem',
+                                                                            marginLeft: '4px'
+                                                                        }}
+                                                                    >✕</button>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                        {form.pacientesIds.length === 0 && (
+                                                            <div style={{ gridColumn: isProc ? 'span 3' : 'span 2', fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', padding: '0.5rem' }}>
+                                                                Sin pacientes seleccionados
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                );
-                                            })}
-                                            {form.pacientesIds.length === 0 && (
-                                                <div style={{ gridColumn: 'span 2', fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', padding: '0.5rem' }}>
-                                                    Sin pacientes seleccionados
-                                                </div>
-                                            )}
-                                        </div>
+                                                </>
+                                            );
+                                        })()}
                                     </div>
                                 )}
 
