@@ -61,6 +61,7 @@ export interface SolicitudSalida {
   rondaId?: string;
   motivoRechazo?: string;
   funcionariosIds?: string[]; // hasta 4, solo para Visitas Domiciliarias
+  pacientesIds?: string[]; // hasta 8, solo para Visitas Domiciliarias
 }
 
 export interface Paciente {
