@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { POSTAS, VEHICULOS, PERSONAL } from '../data/mockData';
 import type { Ronda, Posta, Vehiculo, Personal, SolicitudSalida } from '../data/types';
-import { getSolicitudesFirebase, updateSolicitudFirebase } from '../services/solicitudesService';
+import { getSolicitudesFirebase, updateSolicitudFirebase, deleteSolicitudFirebase } from '../services/solicitudesService';
 import { TIPO_CONFIG } from '../data/config';
 import { required, validate, timeRange } from '../utils/validation';
 import Toast from './Toast';
@@ -432,11 +432,23 @@ const RondasManagement: React.FC<RondasManagementProps> = ({
     };
 
     const handleDeleteRonda = async (rondaId: string) => {
+        const rondaToDelete = rondas.find(r => r.id === rondaId);
         if (window.confirm('¿Está seguro que desea eliminar esta ronda permanentemente de la nube?')) {
             try {
+                // Si la ronda tiene solicitudes asociadas, eliminarlas también de la tabla solicitudes
+                if (rondaToDelete?.solicitudesIds && rondaToDelete.solicitudesIds.length > 0) {
+                    for (const solId of rondaToDelete.solicitudesIds) {
+                        try {
+                            await deleteSolicitudFirebase(solId);
+                        } catch (solError) {
+                            console.error(`Error al eliminar solicitud asociada ${solId}:`, solError);
+                        }
+                    }
+                }
+
                 await deleteRondaFirebase(rondaId);
                 setRondas(rondas.filter(r => r.id !== rondaId));
-                setToast({ message: 'Ronda eliminada correctamente de la Nube', type: 'success' });
+                setToast({ message: 'Ronda y solicitudes asociadas eliminadas correctamente', type: 'success' });
                 if (editingRondaId === rondaId) {
                     handleCancelEdit();
                 }
