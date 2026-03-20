@@ -651,19 +651,23 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                             </div>
                                         )}
 
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                        <div style={{ 
+                                            display: 'grid', 
+                                            gridTemplateColumns: '1fr 1fr', 
+                                            gap: '0.5rem' 
+                                        }}>
                                             {form.pacientesIds.map(pid => {
                                                 const p = allPacientes.find(x => x.id === pid);
                                                 if (!p) return null;
                                                 return (
                                                     <div key={pid} style={{
                                                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                                        padding: '0.5rem 0.75rem', background: 'white', borderRadius: '8px',
-                                                        border: '1px solid #bae6fd', fontSize: '0.82rem'
+                                                        padding: '0.4rem 0.75rem', background: 'white', borderRadius: '8px',
+                                                        border: '1px solid #bae6fd', fontSize: '0.78rem'
                                                     }}>
-                                                        <div>
-                                                            <div style={{ fontWeight: 600 }}>{p.nombre}</div>
-                                                            <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{p.rut} • {p.telefonos[0] || 'Sin Tel'}</div>
+                                                        <div style={{ overflow: 'hidden' }}>
+                                                            <div style={{ fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.nombre}</div>
+                                                            <div style={{ fontSize: '0.65rem', color: '#64748b', whiteSpace: 'nowrap' }}>{p.rut} • {p.telefonos[0] || 'Sin Tel'}</div>
                                                         </div>
                                                         <button
                                                             type="button"
@@ -677,14 +681,15 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                                             }}
                                                             style={{
                                                                 background: 'none', border: 'none', color: '#ef4444',
-                                                                cursor: 'pointer', padding: '2px 6px', fontSize: '1rem'
+                                                                cursor: 'pointer', padding: '0 4px', fontSize: '1rem',
+                                                                marginLeft: '4px'
                                                             }}
                                                         >✕</button>
                                                     </div>
                                                 );
                                             })}
                                             {form.pacientesIds.length === 0 && (
-                                                <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', padding: '0.5rem' }}>
+                                                <div style={{ gridColumn: 'span 2', fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', padding: '0.5rem' }}>
                                                     Sin pacientes seleccionados
                                                 </div>
                                             )}
