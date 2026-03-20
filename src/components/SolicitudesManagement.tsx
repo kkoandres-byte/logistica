@@ -141,9 +141,8 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
         try {
             await updateSolicitudFirebase({ ...s, estado });
             setSolicitudes(prev => prev.map(x => x.id === s.id ? { ...x, estado } : x));
-            if (estado === 'Aprobada' && onApprove) {
-                onApprove(s);
-            }
+            // Ya no llamamos a onApprove aquí automáticamente
+            showToast(`Solicitud ${estado.toLowerCase()} correctamente`);
         } catch {
             showToast('Error al cambiar estado', 'error');
         }
@@ -177,14 +176,14 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
     const stats = {
         total:     solicitudes.length,
         pendiente: solicitudes.filter(s => s.estado === 'Pendiente').length,
-        aprobada:  solicitudes.filter(s => s.estado === 'Aprobada').length,
-        rechazada: solicitudes.filter(s => s.estado === 'Rechazada').length,
+        aprobada:  solicitudes.filter(s => s.estado === 'Aprobada' && !s.rondaId).length,
+        rechazada: solicitudes.filter(s => s.estado === 'Rechazada' && !s.motivoRechazo).length,
     };
 
     const filtered = solicitudes.filter(s => {
-        // El usuario solicitó que en estos menús SOLO aparezcan las pendientes.
-        // Todo lo aprobado o rechazado (esté o no asignado) debe irse a Reportes.
-        if (s.estado !== 'Pendiente') return false;
+        // Mostramos las pendientes O las aprobadas que no tienen ronda asignada
+        const visible = s.estado === 'Pendiente' || (s.estado === 'Aprobada' && !s.rondaId);
+        if (!visible) return false;
 
         return (filterEstado === 'Todas' || s.estado === filterEstado) &&
                (filterTipo   === 'Todos' || s.tipoSalida === filterTipo);
@@ -382,12 +381,20 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                         )}
                                         <td>
                                             <div style={{ display: 'flex', gap: '6px' }}>
+                                                {isAdmin && s.estado === 'Aprobada' && !s.rondaId && (
+                                                    <button
+                                                        className="btn"
+                                                        style={{ padding: '5px 10px', fontSize: '0.78rem', background: '#dcfce7', color: '#166534', fontWeight: 600 }}
+                                                        onClick={() => onApprove && onApprove(s)}
+                                                        title="Programar salida para esta solicitud"
+                                                    >🗓️ Programar</button>
+                                                )}
                                                 {(isAdmin || s.solicitante === usuario?.nombre || s.solicitante === usuario?.email) && (
                                                     <button
                                                         className="btn"
                                                         style={{ padding: '5px 10px', fontSize: '0.78rem', background: '#e0f2fe', color: '#0369a1' }}
                                                         onClick={() => openEdit(s)}
-                                                    >✏️ Editar</button>
+                                                    >✏️</button>
                                                 )}
                                                 {isAdmin && (
                                                     <button
