@@ -63,7 +63,7 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
     const formatDescByPatients = (pIds: string[]) => {
         const selected = allPacientes.filter(px => pIds.includes(px.id));
         return selected.map((px, idx) => 
-            `${idx + 1}. ${px.nombre} (${px.rut})\r\n   DEP: ${px.dependencia}\r\n   DIR: ${px.calle} ${px.numeroDomicilio}\r\n   TEL: ${px.telefonos.join(' / ')}`
+            `${idx + 1}. ${px.nombre} (${px.rut})\r\n   DEP: ${px.dependencia} | DIR: ${px.calle} ${px.numeroDomicilio}\r\n   TEL: ${px.telefonos.join(' / ')}`
         ).join('\r\n\r\n');
     };
 
