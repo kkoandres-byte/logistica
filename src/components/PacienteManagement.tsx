@@ -355,7 +355,7 @@ const PacienteManagement: React.FC = () => {
                                         <tr key={p.id}>
                                             <td style={{ fontWeight: 600 }}>{p.rut}</td>
                                             <td>{p.nombre}</td>
-                                            <td>{p.sector}</td>
+                                            <td style={{ whiteSpace: 'nowrap' }}>{p.sector}</td>
                                             <td>
                                                 <span style={{ 
                                                     padding: '2px 8px', 
