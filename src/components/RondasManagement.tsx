@@ -22,13 +22,15 @@ interface RondasManagementProps {
     onSwitchTab?: () => void;
     prefillData?: Partial<Ronda> & { solicitanteName?: string };
     onClearPrefill?: () => void;
+    onSaveSuccess?: () => void;
 }
 
 const RondasManagement: React.FC<RondasManagementProps> = ({ 
     viewMode = 'form', 
     onSwitchTab, 
     prefillData,
-    onClearPrefill 
+    onClearPrefill,
+    onSaveSuccess
 }) => {
     const { usuario } = useAuth();
     const isAdmin = usuario?.rol === 'admin';
@@ -278,6 +280,7 @@ const RondasManagement: React.FC<RondasManagementProps> = ({
                 setRondas(updatedRondas);
                 setEditingRondaId(null);
                 setToast({ message: 'Ronda actualizada correctamente en la Nube', type: 'success' });
+                if (onSaveSuccess) setTimeout(onSaveSuccess, 1500);
             } else {
                 const newRonda: Ronda = {
                     id: Math.random().toString(36).substr(2, 9),
@@ -299,6 +302,7 @@ const RondasManagement: React.FC<RondasManagementProps> = ({
                 
                 setRondas([newRonda, ...rondas]);
                 setToast({ message: 'Ronda programada y guardada en la Nube', type: 'success' });
+                if (onSaveSuccess) setTimeout(onSaveSuccess, 1500);
             }
 
             setFormData({

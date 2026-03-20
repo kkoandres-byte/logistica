@@ -68,7 +68,7 @@ const App: React.FC = () => {
       case 'dashboard': return <Dashboard />;
       case 'reporte-solicitudes': return <SolicitudesReport />;
       case 'salidas-programadas': return <RondasManagement viewMode="table" onSwitchTab={usuario?.rol === 'admin' ? () => setActiveTab('rondas') : undefined} />;
-      case 'rondas': return usuario?.rol === 'admin' ? <RondasManagement viewMode="form" prefillData={prefillRonda || undefined} onClearPrefill={() => setPrefillRonda(null)} /> : <Dashboard />;
+      case 'rondas': return usuario?.rol === 'admin' ? <RondasManagement viewMode="form" prefillData={prefillRonda || undefined} onClearPrefill={() => setPrefillRonda(null)} onSaveSuccess={() => setActiveTab('solicitudes')} /> : <Dashboard />;
       case 'postas': return usuario?.rol === 'admin' ? <PostasManagement /> : <Dashboard />;
       case 'vehiculos': return usuario?.rol === 'admin' ? <VehiculosManagement /> : <Dashboard />;
       case 'personal': return usuario?.rol === 'admin' ? <PersonalManagement /> : <Dashboard />;
