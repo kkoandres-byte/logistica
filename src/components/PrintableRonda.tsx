@@ -227,67 +227,6 @@ const PrintableRonda: React.FC<PrintableRondaProps> = ({
                 </table>
             </div>
 
-            {/* Firmas */}
-            <div style={{
-                marginTop: '100px',
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr 1fr',
-                gap: '40px',
-                textAlign: 'center',
-                fontSize: '13px'
-            }}>
-                <div>
-                    <div style={{
-                        borderTop: '2px solid black',
-                        paddingTop: '10px',
-                        marginBottom: '5px'
-                    }}>
-                        <strong>Firma Conductor</strong>
-                    </div>
-                    <div style={{ fontSize: '11px', color: '#666' }}>
-                        {conductor?.nombre}
-                    </div>
-                </div>
-                <div>
-                    <div style={{
-                        borderTop: '2px solid black',
-                        paddingTop: '10px',
-                        marginBottom: '5px'
-                    }}>
-                        <strong>Encargado Logística</strong>
-                    </div>
-                </div>
-                <div>
-                    <div style={{
-                        borderTop: '2px solid black',
-                        paddingTop: '10px',
-                        marginBottom: '5px'
-                    }}>
-                        <strong>Timbre Salida</strong>
-                    </div>
-                    <div style={{ fontSize: '11px', color: '#666' }}>
-                        CESFAM FUTRONO
-                    </div>
-                </div>
-            </div>
-
-            {/* Pie de página */}
-            <div style={{
-                marginTop: '60px',
-                textAlign: 'center',
-                fontSize: '11px',
-                color: '#666',
-                borderTop: '1px solid #ddd',
-                paddingTop: '15px'
-            }}>
-                Documento generado el {new Date().toLocaleDateString('es-ES', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                })}
-            </div>
         </div>
     );
 };
