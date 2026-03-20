@@ -1,6 +1,6 @@
 import { collection, getDocs, setDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import type { Posta, Vehiculo, Personal } from '../data/types';
+import type { Posta, Vehiculo, Personal, Paciente } from '../data/types';
 
 // Generic function to retrieve data
 const getCollectionData = async <T>(collectionName: string): Promise<T[]> => {
@@ -30,3 +30,9 @@ export const getPersonalFirebase = () => getCollectionData<Personal>('personal')
 export const addPersonalFirebase = async (personal: Personal) => setDoc(doc(db, 'personal', personal.id), personal);
 export const updatePersonalFirebase = async (personal: Personal) => updateDoc(doc(db, 'personal', personal.id), { ...personal });
 export const deletePersonalFirebase = async (id: string) => deleteDoc(doc(db, 'personal', id));
+
+// --- PACIENTES ---
+export const getPacientesFirebase = () => getCollectionData<Paciente>('pacientes');
+export const addPacienteFirebase = async (paciente: Paciente) => setDoc(doc(db, 'pacientes', paciente.id), paciente);
+export const updatePacienteFirebase = async (paciente: Paciente) => updateDoc(doc(db, 'pacientes', paciente.id), { ...paciente });
+export const deletePacienteFirebase = async (id: string) => deleteDoc(doc(db, 'pacientes', id));

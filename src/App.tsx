@@ -11,6 +11,7 @@ import PersonalManagement from './components/PersonalManagement';
 import AuthGuard from './components/AuthGuard';
 import SolicitudesManagement from './components/SolicitudesManagement';
 import SolicitudesReport from './components/SolicitudesReport';
+import PacienteManagement from './components/PacienteManagement';
 import type { Ronda, SolicitudSalida } from './data/types';
 
 type AuthView = 'login' | 'register' | 'authenticated';
@@ -18,7 +19,7 @@ type AuthView = 'login' | 'register' | 'authenticated';
 const App: React.FC = () => {
   const { isAuthenticated, isLoading, usuario } = useAuth();
   const [authView, setAuthView] = useState<AuthView>('login');
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'reporte-solicitudes' | 'rondas' | 'salidas-programadas' | 'postas' | 'vehiculos' | 'personal' | 'solicitudes'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'reporte-solicitudes' | 'rondas' | 'salidas-programadas' | 'postas' | 'vehiculos' | 'personal' | 'solicitudes' | 'pacientes'>('dashboard');
   const [activosOpen, setActivosOpen] = useState(false);
   const [gestionOpen, setGestionOpen] = useState(true);
   const [prefillRonda, setPrefillRonda] = useState<Partial<Ronda> | null>(null);
@@ -73,6 +74,7 @@ const App: React.FC = () => {
       case 'vehiculos': return usuario?.rol === 'admin' ? <VehiculosManagement /> : <Dashboard />;
       case 'personal': return usuario?.rol === 'admin' ? <PersonalManagement /> : <Dashboard />;
       case 'solicitudes': return <SolicitudesManagement onApprove={handleApproveSolicitud} />;
+      case 'pacientes': return usuario?.rol === 'admin' ? <PacienteManagement /> : <Dashboard />;
       default: return <Dashboard />;
     }
   };
@@ -192,6 +194,13 @@ const App: React.FC = () => {
                     >
                       <span>👥</span> Personal
                     </div>
+                    <div
+                      className={`nav-item ${activeTab === 'pacientes' ? 'active' : ''}`}
+                      onClick={() => setActiveTab('pacientes')}
+                      style={{ fontSize: '0.85rem' }}
+                    >
+                      <span>🛌</span> Pacientes
+                    </div>
                   </div>
                 )}
               </>
@@ -213,6 +222,7 @@ const App: React.FC = () => {
               {activeTab === 'postas' && 'Administración de Destinos'}
               {activeTab === 'vehiculos' && 'Control de Flota'}
               {activeTab === 'personal' && 'Personal'}
+              {activeTab === 'pacientes' && 'Gestión de Pacientes'}
               {activeTab === 'solicitudes' && (usuario?.rol === 'admin' ? 'Gestión de Solicitudes' : 'Solicitudes de Salida')}
             </h1>
             <UserMenu />

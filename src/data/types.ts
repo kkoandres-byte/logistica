@@ -62,3 +62,18 @@ export interface SolicitudSalida {
   motivoRechazo?: string;
   funcionariosIds?: string[]; // hasta 4, solo para Visitas Domiciliarias
 }
+
+export interface Paciente {
+  id: string; // UUID or Firebase Auto-ID
+  rut: string;
+  nombre: string;
+  fechaNacimiento: string;
+  sexo: 'M' | 'F' | 'Otro';
+  calle: string;
+  numeroDomicilio: string;
+  telefono: string;
+  sector: string;
+  establecimiento: string;
+  urbanoRural: 'Urbano' | 'Rural';
+  dependencia: string;
+}
