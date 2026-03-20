@@ -79,7 +79,7 @@ const UserMenu: React.FC = () => {
             style={{
               position: 'absolute',
               top: 'calc(100% + 8px)',
-              right: 0,
+              left: 0,
               background: 'white',
               borderRadius: '12px',
               boxShadow: '0 10px 40px rgba(0,0,0,0.15)',

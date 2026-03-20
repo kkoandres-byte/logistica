@@ -83,6 +83,9 @@ const App: React.FC = () => {
     <AuthGuard>
       <div className="app-container">
         <aside className="sidebar">
+          <div style={{ padding: '0.5rem 0 1.5rem 0', borderBottom: '1px solid #e2e8f0', marginBottom: '1.5rem' }}>
+            <UserMenu />
+          </div>
           <div className="sidebar-logo">
             <span style={{ fontSize: '1.5rem' }}>🚐</span>
             <span>Salidas de Vehículos</span>
@@ -225,7 +228,6 @@ const App: React.FC = () => {
               {activeTab === 'pacientes' && 'Gestión de Pacientes'}
               {activeTab === 'solicitudes' && (usuario?.rol === 'admin' ? 'Gestión de Solicitudes' : 'Solicitudes de Salida')}
             </h1>
-            <UserMenu />
           </header>
 
           {renderContent()}
