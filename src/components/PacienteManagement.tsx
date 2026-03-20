@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import type { Paciente } from '../data/types';
+import type { Paciente, Posta } from '../data/types';
 import { required, validate, minLength } from '../utils/validation';
 import Toast from './Toast';
-import { getPacientesFirebase, addPacienteFirebase, updatePacienteFirebase, deletePacienteFirebase } from '../services/dataService';
+import { getPacientesFirebase, addPacienteFirebase, updatePacienteFirebase, deletePacienteFirebase, getPostasFirebase } from '../services/dataService';
 
 const PacienteManagement: React.FC = () => {
     const [pacientes, setPacientes] = useState<Paciente[]>([]);
+    const [postas, setPostas] = useState<Posta[]>([]);
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -17,11 +18,11 @@ const PacienteManagement: React.FC = () => {
         sexo: 'M',
         calle: '',
         numeroDomicilio: '',
-        telefono: '',
-        sector: '',
-        establecimiento: '',
+        telefonos: [''],
+        sector: 'Sector 1',
+        establecimientoId: '',
         urbanoRural: 'Urbano',
-        dependencia: ''
+        dependencia: 'Leve'
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -35,11 +36,15 @@ const PacienteManagement: React.FC = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const data = await getPacientesFirebase();
-            setPacientes(data);
+            const [pData, postasData] = await Promise.all([
+                getPacientesFirebase(),
+                getPostasFirebase()
+            ]);
+            setPacientes(pData);
+            setPostas(postasData);
         } catch (error) {
-            console.error("Error fetching pacientes:", error);
-            setToast({ message: 'Error al cargar pacientes', type: 'error' });
+            console.error("Error fetching data:", error);
+            setToast({ message: 'Error al cargar datos', type: 'error' });
         } finally {
             setLoading(false);
         }
@@ -50,14 +55,19 @@ const PacienteManagement: React.FC = () => {
             required(formData.rut, 'RUT'),
             required(formData.nombre, 'Nombre'),
             minLength(formData.nombre, 3, 'Nombre'),
-            required(formData.sector, 'Sector'),
-            required(formData.establecimiento, 'Establecimiento')
+            required(formData.establecimientoId, 'Establecimiento')
         );
 
         const newErrors: Record<string, string> = {};
         validation.errors.forEach(error => {
             newErrors[error.field] = error.message;
         });
+
+        // Validar que haya al menos un teléfono no vacío
+        if (formData.telefonos.every(t => !t.trim())) {
+            newErrors.telefonos = 'Debe ingresar al menos un teléfono';
+            validation.isValid = false;
+        }
 
         setErrors(newErrors);
         return validation.isValid;
@@ -67,8 +77,7 @@ const PacienteManagement: React.FC = () => {
         setTouched({
             rut: true,
             nombre: true,
-            sector: true,
-            establecimiento: true
+            establecimientoId: true
         });
 
         if (!validateForm()) {
@@ -77,16 +86,20 @@ const PacienteManagement: React.FC = () => {
         }
 
         try {
+            // Limpiar teléfonos vacíos antes de guardar
+            const cleanTelefonos = formData.telefonos.filter(t => t.trim() !== '');
+            const dataToSave = { ...formData, telefonos: cleanTelefonos };
+
             if (editingId) {
-                const updated = { id: editingId, ...formData } as Paciente;
+                const updated = { id: editingId, ...dataToSave } as Paciente;
                 await updatePacienteFirebase(updated);
                 setPacientes(prev => prev.map(p => p.id === editingId ? updated : p));
                 setToast({ message: 'Paciente actualizado correctamente', type: 'success' });
             } else {
                 const newPaciente: Paciente = {
                     id: Math.random().toString(36).substr(2, 9),
-                    ...formData
-                };
+                    ...dataToSave
+                } as Paciente;
                 await addPacienteFirebase(newPaciente);
                 setPacientes(prev => [newPaciente, ...prev]);
                 setToast({ message: 'Paciente registrado correctamente', type: 'success' });
@@ -106,9 +119,9 @@ const PacienteManagement: React.FC = () => {
             sexo: p.sexo,
             calle: p.calle,
             numeroDomicilio: p.numeroDomicilio,
-            telefono: p.telefono,
+            telefonos: p.telefonos.length > 0 ? [...p.telefonos] : [''],
             sector: p.sector,
-            establecimiento: p.establecimiento,
+            establecimientoId: p.establecimientoId,
             urbanoRural: p.urbanoRural,
             dependencia: p.dependencia
         });
@@ -126,11 +139,11 @@ const PacienteManagement: React.FC = () => {
             sexo: 'M',
             calle: '',
             numeroDomicilio: '',
-            telefono: '',
-            sector: '',
-            establecimiento: '',
+            telefonos: [''],
+            sector: 'Sector 1',
+            establecimientoId: '',
             urbanoRural: 'Urbano',
-            dependencia: ''
+            dependencia: 'Leve'
         });
         setErrors({});
         setTouched({});
@@ -145,6 +158,27 @@ const PacienteManagement: React.FC = () => {
             } catch (error) {
                 setToast({ message: 'Error al eliminar', type: 'error' });
             }
+        }
+    };
+
+    const handleAddPhone = () => {
+        if (formData.telefonos.length < 3) {
+            setFormData({ ...formData, telefonos: [...formData.telefonos, ''] });
+        }
+    };
+
+    const handlePhoneChange = (index: number, value: string) => {
+        const newPhones = [...formData.telefonos];
+        newPhones[index] = value;
+        setFormData({ ...formData, telefonos: newPhones });
+    };
+
+    const handleRemovePhone = (index: number) => {
+        if (formData.telefonos.length > 1) {
+            const newPhones = formData.telefonos.filter((_, i) => i !== index);
+            setFormData({ ...formData, telefonos: newPhones });
+        } else {
+            setFormData({ ...formData, telefonos: [''] });
         }
     };
 
@@ -208,31 +242,39 @@ const PacienteManagement: React.FC = () => {
                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
-                        <div className="form-group">
-                            <label>Teléfono</label>
-                            <input type="text" value={formData.telefono} placeholder="+569..." onChange={e => setFormData({...formData, telefono: e.target.value})} />
-                        </div>
-                        <div className="form-group">
-                            <label>Sector *</label>
-                            <input 
-                                type="text" 
-                                value={formData.sector} 
-                                onChange={e => setFormData({...formData, sector: e.target.value})}
-                                className={touched.sector && errors.sector ? 'input-error' : ''}
-                            />
-                        </div>
+                    <div className="form-group" style={{ marginTop: '1rem' }}>
+                        <label style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            Teléfonos (Hasta 3)
+                            {formData.telefonos.length < 3 && (
+                                <button onClick={handleAddPhone} style={{ fontSize: '0.75rem', background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}>
+                                    + Agregar otro
+                                </button>
+                            )}
+                        </label>
+                        {formData.telefonos.map((phone, idx) => (
+                            <div key={idx} style={{ display: 'flex', gap: '5px', marginBottom: '5px' }}>
+                                <input 
+                                    type="text" 
+                                    value={phone} 
+                                    placeholder={`Teléfono ${idx + 1}`} 
+                                    onChange={e => handlePhoneChange(idx, e.target.value)}
+                                    style={{ flex: 1 }}
+                                />
+                                {formData.telefonos.length > 1 && (
+                                    <button onClick={() => handleRemovePhone(idx)} style={{ padding: '0 8px', background: '#fee2e2', color: '#991b1b', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>✕</button>
+                                )}
+                            </div>
+                        ))}
+                        {errors.telefonos && <div className="error-message">{errors.telefonos}</div>}
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
                         <div className="form-group">
-                            <label>Establecimiento *</label>
-                            <input 
-                                type="text" 
-                                value={formData.establecimiento} 
-                                onChange={e => setFormData({...formData, establecimiento: e.target.value})}
-                                className={touched.establecimiento && errors.establecimiento ? 'input-error' : ''}
-                            />
+                            <label>Sector *</label>
+                            <select value={formData.sector} onChange={e => setFormData({...formData, sector: e.target.value as any})}>
+                                <option value="Sector 1">Sector 1</option>
+                                <option value="Sector 2">Sector 2</option>
+                            </select>
                         </div>
                         <div className="form-group">
                             <label>Urbano / Rural</label>
@@ -243,9 +285,28 @@ const PacienteManagement: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="form-group" style={{ marginTop: '1rem' }}>
-                        <label>Dependencia</label>
-                        <input type="text" value={formData.dependencia} onChange={e => setFormData({...formData, dependencia: e.target.value})} />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+                        <div className="form-group">
+                            <label>Establecimiento *</label>
+                            <select 
+                                value={formData.establecimientoId} 
+                                onChange={e => setFormData({...formData, establecimientoId: e.target.value})}
+                                className={touched.establecimientoId && errors.establecimientoId ? 'input-error' : ''}
+                            >
+                                <option value="">Seleccione Destino...</option>
+                                {postas.map(p => (
+                                    <option key={p.id} value={p.id}>{p.nombre}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label>Dependencia</label>
+                            <select value={formData.dependencia} onChange={e => setFormData({...formData, dependencia: e.target.value as any})}>
+                                <option value="Leve">Leve</option>
+                                <option value="Moderada">Moderada</option>
+                                <option value="Severa">Severa</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: '10px', marginTop: '1.5rem' }}>
@@ -279,22 +340,35 @@ const PacienteManagement: React.FC = () => {
                                     <th>RUT</th>
                                     <th>Nombre</th>
                                     <th>Sector</th>
+                                    <th>Dependencia</th>
                                     <th>Establecimiento</th>
                                     <th className="col-actions"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {loading ? (
-                                    <tr><td colSpan={5} style={{ textAlign: 'center' }}>Cargando...</td></tr>
+                                    <tr><td colSpan={6} style={{ textAlign: 'center' }}>Cargando...</td></tr>
                                 ) : filteredPacientes.length === 0 ? (
-                                    <tr><td colSpan={5} style={{ textAlign: 'center' }}>No se encontraron pacientes</td></tr>
+                                    <tr><td colSpan={6} style={{ textAlign: 'center' }}>No se encontraron pacientes</td></tr>
                                 ) : (
                                     filteredPacientes.map(p => (
                                         <tr key={p.id}>
                                             <td style={{ fontWeight: 600 }}>{p.rut}</td>
                                             <td>{p.nombre}</td>
                                             <td>{p.sector}</td>
-                                            <td>{p.establecimiento}</td>
+                                            <td>
+                                                <span style={{ 
+                                                    padding: '2px 8px', 
+                                                    borderRadius: '4px', 
+                                                    fontSize: '0.7rem',
+                                                    fontWeight: 700,
+                                                    background: p.dependencia === 'Leve' ? '#dcfce7' : p.dependencia === 'Moderada' ? '#fef9c3' : '#fee2e2',
+                                                    color: p.dependencia === 'Leve' ? '#166534' : p.dependencia === 'Moderada' ? '#854d0e' : '#991b1b'
+                                                }}>
+                                                    {p.dependencia}
+                                                </span>
+                                            </td>
+                                            <td>{postas.find(pt => pt.id === p.establecimientoId)?.nombre || '–'}</td>
                                             <td>
                                                 <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
                                                     <button className="btn-icon" onClick={() => handleEdit(p)} title="Editar">✏️</button>

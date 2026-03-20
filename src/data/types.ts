@@ -71,9 +71,9 @@ export interface Paciente {
   sexo: 'M' | 'F' | 'Otro';
   calle: string;
   numeroDomicilio: string;
-  telefono: string;
-  sector: string;
-  establecimiento: string;
+  telefonos: string[]; // Up to 3
+  sector: 'Sector 1' | 'Sector 2';
+  establecimientoId: string; // Linked to Posta ID
   urbanoRural: 'Urbano' | 'Rural';
-  dependencia: string;
+  dependencia: 'Leve' | 'Moderada' | 'Severa';
 }
