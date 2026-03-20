@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { getSolicitudesFirebase, deleteSolicitudFirebase } from '../services/solicitudesService';
 import { getPostasFirebase } from '../services/dataService';
 import type { SolicitudSalida, Posta } from '../data/types';
@@ -6,6 +7,8 @@ import { TIPO_CONFIG } from '../data/config';
 import { POSTAS } from '../data/mockData';
 
 const SolicitudesReport: React.FC = () => {
+    const { usuario } = useAuth();
+    const isAdmin = usuario?.rol === 'admin';
     const [solicitudes, setSolicitudes] = useState<SolicitudSalida[]>([]);
     const [allPostas, setAllPostas] = useState<Posta[]>([]);
     const [loading, setLoading] = useState(true);
@@ -57,7 +60,7 @@ const SolicitudesReport: React.FC = () => {
                             <th style={{ padding: '12px' }}>Destino / Paradas</th>
                             <th style={{ padding: '12px' }}>Descripción</th>
                             <th style={{ padding: '12px' }}>Estado Técnico</th>
-                            <th style={{ padding: '12px' }}>Acciones</th>
+                            {isAdmin && <th style={{ padding: '12px' }}>Acciones</th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -91,25 +94,27 @@ const SolicitudesReport: React.FC = () => {
                                             (s.motivoRechazo ? <span style={{ color: '#991b1b', fontSize: '0.75rem' }}>❌ {s.motivoRechazo}</span> : <span style={{ color: '#94a3b8' }}>–</span>)
                                         }
                                     </td>
-                                    <td style={{ padding: '12px' }}>
-                                        <button 
-                                            onClick={() => handleDelete(s.id)}
-                                            style={{ 
-                                                border: 'none', background: '#fef2f2', color: '#ef4444', 
-                                                padding: '6px', borderRadius: '6px', cursor: 'pointer',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                            }}
-                                            title="Eliminar del reporte"
-                                        >
-                                            🗑️
-                                        </button>
-                                    </td>
+                                    {isAdmin && (
+                                        <td style={{ padding: '12px' }}>
+                                            <button 
+                                                onClick={() => handleDelete(s.id)}
+                                                style={{ 
+                                                    border: 'none', background: '#fef2f2', color: '#ef4444', 
+                                                    padding: '6px', borderRadius: '6px', cursor: 'pointer',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                                }}
+                                                title="Eliminar del reporte"
+                                            >
+                                                🗑️
+                                            </button>
+                                        </td>
+                                    )}
                                 </tr>
                             );
                         })}
                         {list.length === 0 && (
                             <tr>
-                                <td colSpan={7} style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+                                <td colSpan={isAdmin ? 7 : 6} style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
                                     No hay solicitudes en esta categoría
                                 </td>
                             </tr>
