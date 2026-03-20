@@ -33,6 +33,7 @@ const SolicitudesReport: React.FC = () => {
                             <th style={{ padding: '12px' }}>F. Viaje</th>
                             <th style={{ padding: '12px' }}>Solicitante</th>
                             <th style={{ padding: '12px' }}>Tipo</th>
+                            <th style={{ padding: '12px' }}>Destino / Paradas</th>
                             <th style={{ padding: '12px' }}>Descripción</th>
                             <th style={{ padding: '12px' }}>Estado Técnico</th>
                         </tr>
@@ -53,6 +54,14 @@ const SolicitudesReport: React.FC = () => {
                                             {tipo?.icon} {s.tipoSalida}
                                         </span>
                                     </td>
+                                    <td style={{ padding: '12px', fontSize: '0.83rem', color: '#1e293b', fontWeight: 600 }}>
+                                        {s.destino || '–'}
+                                        {s.paradasIntermedias && (
+                                            <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '2px', fontWeight: 400 }}>
+                                                Paradas: {s.paradasIntermedias}
+                                            </div>
+                                        )}
+                                    </td>
                                     <td style={{ padding: '12px', fontSize: '0.85rem' }}>{s.descripcion}</td>
                                     <td style={{ padding: '12px' }}>
                                         {s.rondaId ? 
@@ -65,7 +74,7 @@ const SolicitudesReport: React.FC = () => {
                         })}
                         {list.length === 0 && (
                             <tr>
-                                <td colSpan={5} style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+                                <td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
                                     No hay solicitudes en esta categoría
                                 </td>
                             </tr>

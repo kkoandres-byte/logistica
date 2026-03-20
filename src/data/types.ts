@@ -54,6 +54,8 @@ export interface SolicitudSalida {
   fechaViaje: string; // Fecha programada para el viaje
   solicitante: string;
   tipoSalida: TipoSolicitud;
+  destino?: string;
+  paradasIntermedias?: string;
   descripcion: string;
   estado: EstadoSolicitud;
   rondaId?: string;

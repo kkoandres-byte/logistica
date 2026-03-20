@@ -23,6 +23,8 @@ const TIPOS: TipoSolicitud[] = [
 const EMPTY_FORM = {
     solicitante: '',
     tipoSalida: 'Visitas Domiciliarias' as TipoSolicitud,
+    destino: '',
+    paradasIntermedias: '',
     descripcion: '',
     estado: 'Pendiente' as EstadoSolicitud,
     funcionariosIds: [] as string[],
@@ -88,6 +90,8 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
         setForm({
             solicitante: s.solicitante,
             tipoSalida: s.tipoSalida,
+            destino: s.destino || '',
+            paradasIntermedias: s.paradasIntermedias || '',
             descripcion: s.descripcion,
             estado: s.estado,
             funcionariosIds: s.funcionariosIds || [],
@@ -98,7 +102,7 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!form.solicitante.trim() || !form.descripcion.trim()) {
+        if (!form.solicitante.trim() || !form.destino.trim() || !form.descripcion.trim()) {
             showToast('Complete todos los campos requeridos', 'error');
             return;
         }
@@ -280,6 +284,7 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                 <th>Solicitante</th>
                                 <th>Acompañantes</th>
                                 <th>Tipo</th>
+                                <th>Destino / Paradas</th>
                                 <th>Descripción</th>
                                 <th>Estado</th>
                                 {isAdmin && <th>Estado de solicitud</th>}
@@ -328,7 +333,15 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                                 {tipoCfg.icon} {s.tipoSalida}
                                             </span>
                                         </td>
-                                        <td style={{ maxWidth: '260px', fontSize: '0.83rem', color: '#475569' }}>
+                                        <td style={{ fontSize: '0.83rem', color: '#1e293b', fontWeight: 600 }}>
+                                            {s.destino || '–'}
+                                            {s.paradasIntermedias && (
+                                                <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '2px', fontWeight: 400 }}>
+                                                    Paradas: {s.paradasIntermedias}
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td style={{ maxWidth: '200px', fontSize: '0.83rem', color: '#475569' }}>
                                             {s.descripcion}
                                         </td>
                                         <td>
@@ -549,6 +562,30 @@ const SolicitudesManagement: React.FC<Props> = ({ onApprove }) => {
                                         })()}
                                     </div>
                                 )}
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label>Destino *</label>
+                                    <input
+                                        type="text"
+                                        value={form.destino}
+                                        onChange={e => setForm({ ...form, destino: e.target.value })}
+                                        placeholder="Lugar de destino..."
+                                        required
+                                        style={{ width: '100%', padding: '0.625rem 0.75rem', fontSize: '0.875rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+                                    />
+                                </div>
+                                <div className="form-group" style={{ marginBottom: 0 }}>
+                                    <label>Paradas Intermedias</label>
+                                    <input
+                                        type="text"
+                                        value={form.paradasIntermedias}
+                                        onChange={e => setForm({ ...form, paradasIntermedias: e.target.value })}
+                                        placeholder="Ej: Posta El Manzano, etc."
+                                        style={{ width: '100%', padding: '0.625rem 0.75rem', fontSize: '0.875rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+                                    />
+                                </div>
                             </div>
 
                             <div className="form-group">
