@@ -170,7 +170,13 @@ const RondasManagement: React.FC<RondasManagementProps> = ({
 
     const handleAddStaff = (staffId: string) => {
         if (formData.selectedPersonal.includes(staffId)) {
-            setFormData({ ...formData, selectedPersonal: formData.selectedPersonal.filter(id => id !== staffId) });
+            const newViaticos = { ...formData.viaticos };
+            delete newViaticos[staffId];
+            setFormData({ 
+                ...formData, 
+                selectedPersonal: formData.selectedPersonal.filter(id => id !== staffId),
+                viaticos: newViaticos
+            });
         } else {
             if (seatsAvailable <= 0) {
                 setToast({ message: '¡Capacidad máxima del vehículo alcanzada!', type: 'error' });
@@ -267,26 +273,46 @@ const RondasManagement: React.FC<RondasManagementProps> = ({
 
         try {
             if (editingRondaId) {
-                const updatedRondas = rondas.map(r => r.id === editingRondaId ? {
-                    ...r,
-                    ...formData,
-                    pasajerosIds: formData.selectedPersonal
-                } : r);
+                const updatedRondaRecord: Ronda = {
+                    id: editingRondaId,
+                    fecha: formData.fecha,
+                    tipoSalida: formData.tipoSalida,
+                    postaId: formData.postaId,
+                    paradasIntermediasIds: formData.paradasIntermediasIds || [],
+                    vehiculoId: formData.vehiculoId,
+                    conductorId: formData.conductorId,
+                    pasajerosIds: formData.selectedPersonal,
+                    indicaciones: formData.indicaciones || '',
+                    horaSalida: formData.horaSalida || '08:00',
+                    horaRetorno: formData.horaRetorno || '16:00',
+                    accionRetorno: formData.accionRetorno || 'Volver al CESFAM',
+                    viaticos: formData.viaticos || {},
+                    solicitudesIds: formData.solicitudesIds || []
+                };
                 
-                const updatedRondaRecord = updatedRondas.find(r => r.id === editingRondaId)!;
                 // Update Firebase
                 await updateRondaFirebase(updatedRondaRecord);
                 
-                setRondas(updatedRondas);
+                setRondas(rondas.map(r => r.id === editingRondaId ? updatedRondaRecord : r));
                 setEditingRondaId(null);
                 setToast({ message: 'Ronda actualizada correctamente en la Nube', type: 'success' });
                 if (onSaveSuccess) setTimeout(onSaveSuccess, 1500);
             } else {
                 const newRonda: Ronda = {
                     id: Math.random().toString(36).substr(2, 9),
-                    ...formData,
+                    fecha: formData.fecha,
+                    tipoSalida: formData.tipoSalida,
+                    postaId: formData.postaId,
+                    paradasIntermediasIds: formData.paradasIntermediasIds || [],
+                    vehiculoId: formData.vehiculoId,
+                    conductorId: formData.conductorId,
                     pasajerosIds: formData.selectedPersonal,
-                    solicitudesIds: formData.solicitudesIds
+                    indicaciones: formData.indicaciones || '',
+                    horaSalida: formData.horaSalida || '08:00',
+                    horaRetorno: formData.horaRetorno || '16:00',
+                    accionRetorno: formData.accionRetorno || 'Volver al CESFAM',
+                    viaticos: formData.viaticos || {},
+                    solicitudesIds: formData.solicitudesIds || []
                 };
                 
                 // Save to Firebase
