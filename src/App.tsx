@@ -22,6 +22,7 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'reporte-solicitudes' | 'rondas' | 'salidas-programadas' | 'postas' | 'vehiculos' | 'personal' | 'solicitudes' | 'pacientes'>('dashboard');
   const [activosOpen, setActivosOpen] = useState(false);
   const [gestionOpen, setGestionOpen] = useState(true);
+  const [salidasOpen, setSalidasOpen] = useState(true);
   const [prefillRonda, setPrefillRonda] = useState<Partial<Ronda> | null>(null);
 
   // Mostrar loading mientras se verifica la autenticación
@@ -86,41 +87,56 @@ const App: React.FC = () => {
           <div style={{ padding: '0.5rem 0 1.5rem 0', borderBottom: '1px solid #e2e8f0', marginBottom: '1.5rem' }}>
             <UserMenu />
           </div>
-          <div className="sidebar-logo">
-            <span style={{ fontSize: '1.5rem' }}>🚐</span>
-            <span>Salidas de Vehículos</span>
-          </div>
+
 
           <nav className="nav-links" style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-
-            {/* ── Todos los usuarios ── */}
+            {/* ── Salidas de Vehículos Group ── */}
             <div
-              className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
-              onClick={() => setActiveTab('dashboard')}
+              className="nav-item"
+              onClick={() => setSalidasOpen(o => !o)}
+              style={{ justifyContent: 'space-between', cursor: 'pointer', color: '#1e40af', fontWeight: 800 }}
             >
-              <span>📊</span> Dashboard
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span>🚐</span> Salidas de Vehículos
+              </span>
+              <span style={{ fontSize: '0.7rem', transition: 'transform 0.2s', display: 'inline-block', transform: salidasOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
             </div>
 
-            <div
-              className={`nav-item ${activeTab === 'reporte-solicitudes' ? 'active' : ''}`}
-              onClick={() => setActiveTab('reporte-solicitudes')}
-            >
-              <span>📈</span> Reporte de Solicitudes
-            </div>
+            {salidasOpen && (
+              <div style={{ paddingLeft: '1rem', borderLeft: '2px solid #e2e8f0', marginLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                <div
+                  className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('dashboard')}
+                  style={{ fontSize: '0.85rem' }}
+                >
+                  <span>📊</span> Dashboard
+                </div>
 
-            <div
-              className={`nav-item ${activeTab === 'salidas-programadas' ? 'active' : ''}`}
-              onClick={() => setActiveTab('salidas-programadas')}
-            >
-              <span>📄</span> Salidas Programadas
-            </div>
+                <div
+                  className={`nav-item ${activeTab === 'reporte-solicitudes' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('reporte-solicitudes')}
+                  style={{ fontSize: '0.85rem' }}
+                >
+                  <span>📈</span> Reporte de Solicitudes
+                </div>
 
-            <div
-              className={`nav-item ${activeTab === 'solicitudes' ? 'active' : ''}`}
-              onClick={() => setActiveTab('solicitudes')}
-            >
-              <span>📋</span> Solicitudes de Salida
-            </div>
+                <div
+                  className={`nav-item ${activeTab === 'salidas-programadas' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('salidas-programadas')}
+                  style={{ fontSize: '0.85rem' }}
+                >
+                  <span>📄</span> Salidas Programadas
+                </div>
+
+                <div
+                  className={`nav-item ${activeTab === 'solicitudes' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('solicitudes')}
+                  style={{ fontSize: '0.85rem' }}
+                >
+                  <span>📋</span> Solicitudes de Salida
+                </div>
+              </div>
+            )}
 
             {/* ── Solo Administrador ── */}
             {usuario?.rol === 'admin' && (
