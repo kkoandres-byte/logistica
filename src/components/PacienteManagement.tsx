@@ -11,6 +11,10 @@ const PacienteManagement: React.FC = () => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+    
     const [formData, setFormData] = useState<Omit<Paciente, 'id'>>({
         rut: '',
         nombre: '',
@@ -63,7 +67,6 @@ const PacienteManagement: React.FC = () => {
             newErrors[error.field] = error.message;
         });
 
-        // Validar que haya al menos un teléfono no vacío
         if (formData.telefonos.every(t => !t.trim())) {
             newErrors.telefonos = 'Debe ingresar al menos un teléfono';
             validation.isValid = false;
@@ -86,7 +89,6 @@ const PacienteManagement: React.FC = () => {
         }
 
         try {
-            // Limpiar teléfonos vacíos antes de guardar
             const cleanTelefonos = formData.telefonos.filter(t => t.trim() !== '');
             const dataToSave = { ...formData, telefonos: cleanTelefonos };
 
@@ -182,10 +184,25 @@ const PacienteManagement: React.FC = () => {
         }
     };
 
+    // Pagination Logic
     const filteredPacientes = pacientes.filter(p => 
         p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || 
         p.rut.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredPacientes.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredPacientes.length / itemsPerPage);
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
+    // Reset to first page when searching
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
     return (
         <>
@@ -265,7 +282,6 @@ const PacienteManagement: React.FC = () => {
                                 )}
                             </div>
                         ))}
-                        {errors.telefonos && <div className="error-message">{errors.telefonos}</div>}
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
@@ -324,16 +340,19 @@ const PacienteManagement: React.FC = () => {
                 <div className="card">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                         <h3 className="card-title" style={{ margin: 0 }}>Listado de Pacientes</h3>
-                        <input 
-                            type="text" 
-                            placeholder="Buscar por nombre o RUT..." 
-                            value={searchTerm}
-                            onChange={e => setSearchTerm(e.target.value)}
-                            style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem', width: '250px' }}
-                        />
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Total: {filteredPacientes.length}</span>
+                            <input 
+                                type="text" 
+                                placeholder="Buscar por nombre o RUT..." 
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem', width: '250px' }}
+                            />
+                        </div>
                     </div>
 
-                    <div style={{ overflowX: 'auto' }}>
+                    <div style={{ overflowX: 'auto', minHeight: '400px' }}>
                         <table>
                             <thead>
                                 <tr>
@@ -348,10 +367,10 @@ const PacienteManagement: React.FC = () => {
                             <tbody>
                                 {loading ? (
                                     <tr><td colSpan={6} style={{ textAlign: 'center' }}>Cargando...</td></tr>
-                                ) : filteredPacientes.length === 0 ? (
+                                ) : currentItems.length === 0 ? (
                                     <tr><td colSpan={6} style={{ textAlign: 'center' }}>No se encontraron pacientes</td></tr>
                                 ) : (
-                                    filteredPacientes.map(p => (
+                                    currentItems.map(p => (
                                         <tr key={p.id}>
                                             <td style={{ fontWeight: 600 }}>{p.rut}</td>
                                             <td>{p.nombre}</td>
@@ -370,9 +389,9 @@ const PacienteManagement: React.FC = () => {
                                             </td>
                                             <td>{postas.find(pt => pt.id === p.establecimientoId)?.nombre || '–'}</td>
                                             <td>
-                                                <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
-                                                    <button className="btn-icon" onClick={() => handleEdit(p)} title="Editar">✏️</button>
-                                                    <button className="btn-icon" onClick={() => handleDelete(p.id)} title="Eliminar" style={{ color: '#991b1b', background: '#fee2e2' }}>🗑️</button>
+                                                <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', flexWrap: 'nowrap' }}>
+                                                    <button className="btn-icon" onClick={() => handleEdit(p)} title="Editar" style={{ color: '#0369a1', background: '#e0f2fe', width: '28px', height: '28px' }}>✏️</button>
+                                                    <button className="btn-icon" onClick={() => handleDelete(p.id)} title="Eliminar" style={{ color: '#991b1b', background: '#fee2e2', width: '28px', height: '28px' }}>🗑️</button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -381,6 +400,33 @@ const PacienteManagement: React.FC = () => {
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '1.5rem', padding: '10px', borderTop: '1px solid #e2e8f0' }}>
+                            <button 
+                                className="btn" 
+                                disabled={currentPage === 1} 
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                style={{ padding: '4px 12px', fontSize: '0.8rem', opacity: currentPage === 1 ? 0.5 : 1 }}
+                            >
+                                Anterior
+                            </button>
+                            
+                            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569' }}>
+                                Página {currentPage} de {totalPages}
+                            </div>
+
+                            <button 
+                                className="btn" 
+                                disabled={currentPage === totalPages} 
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                style={{ padding: '4px 12px', fontSize: '0.8rem', opacity: currentPage === totalPages ? 0.5 : 1 }}
+                            >
+                                Siguiente
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </>
